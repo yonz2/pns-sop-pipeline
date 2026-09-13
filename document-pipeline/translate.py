@@ -228,8 +228,18 @@ def main():
         "reviewed_by": os.environ.get("REVIEWED_BY", ""),
         "review_date": os.environ.get("REVIEW_DATE", ""),
     }
+    # The translation keeps the source document's identity and form metadata,
+    # with the provenance overlaid on top. Two things depend on this:
+    #   * validate.py check 7 requires sop_id, kode_kegiatan, angka_kredit,
+    #     revisi and the dates to be identical to the source (R1b section 6);
+    #     provenance alone would hold every document.
+    #   * render.js reads `kelas` to choose the form and `title` to label it, so
+    #     the English rendering is built from the same form as the Indonesian.
+    # `lang` and `role` are overridden by the provenance, as they must be.
     import yaml
-    out = "---\n" + yaml.safe_dump(provenance, allow_unicode=True, sort_keys=False) + "---\n\n" + translated
+    merged = dict(front)
+    merged.update(provenance)
+    out = "---\n" + yaml.safe_dump(merged, allow_unicode=True, sort_keys=False) + "---\n\n" + translated
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(out)
     print("written", output_path)
