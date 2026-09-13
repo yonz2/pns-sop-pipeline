@@ -42,13 +42,20 @@ REMOTE_URL="${REMOTE_URL:-https://x-access-token:${GITHUB_TOKEN}@github.com/${GI
 
 log() { printf '[render-main] %s\n' "$*"; }
 
-# The documents renderable from sop/: every *.md except the README.
-expected_basenames() {
-  local f
+# The documents renderable from sop/: every *.md except the README. Populated
+# into the EXPECTED associative array (basename -> 1). Using a lookup rather than
+# `... | grep -q` avoids the producer being killed by SIGPIPE when grep exits on
+# its first match, which is both noisy and hazardous under `set -o pipefail`.
+declare -A EXPECTED=()
+
+collect_expected() {
+  EXPECTED=()
+  local f b
   for f in sop/*.md; do
     [ -e "$f" ] || continue
-    [ "$(basename "$f")" = "README.md" ] && continue
-    basename "$f" .md
+    b="$(basename "$f" .md)"
+    [ "$b" = "README" ] && continue
+    EXPECTED["$b"]=1
   done
 }
 
@@ -58,7 +65,7 @@ render_all() {
   if [ "$DRY_RUN" = "true" ]; then
     log "DRY-RUN: rendering every procedure"
     local b
-    while read -r b; do touch "out/$b.docx" "out/$b.pdf"; done < <(expected_basenames)
+    for b in "${!EXPECTED[@]}"; do touch "out/$b.docx" "out/$b.pdf"; done
     return
   fi
   log "rendering every procedure under sop/"
@@ -74,6 +81,9 @@ render_one() {
   log "rendering sop/$1.md"
   docker run --rm -v "$PWD:/docs:ro" -v "$PWD/out:/out" "$IMAGE" render "/docs/sop/$1.md"
 }
+
+# The set of renderable documents is read from the checked-out `sop/`.
+collect_expected
 
 # --- fetch the previous output, and the commit it was built from -----------
 
@@ -159,15 +169,15 @@ else
 
   # --- completeness check (self-healing) -----------------------------------
   complete=true
-  while read -r b; do
+  for b in "${!EXPECTED[@]}"; do
     [ -f "out/$b.docx" ] || { complete=false; log "missing out/$b.docx"; }
     [ -f "out/$b.pdf" ]  || { complete=false; log "missing out/$b.pdf"; }
-  done < <(expected_basenames)
+  done
 
   for f in out/*.docx; do
     [ -e "$f" ] || continue
     b="$(basename "$f" .docx)"
-    if ! expected_basenames | grep -qx "$b"; then
+    if [ -z "${EXPECTED[$b]:-}" ]; then
       complete=false
       log "out/$b.docx has no source"
     fi
