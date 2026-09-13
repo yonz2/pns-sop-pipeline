@@ -13,6 +13,7 @@ on:
       - "sop/**"
       - "document-pipeline/**"
       - ".github/workflows/render.yml"
+      - ".github/scripts/render-main.sh"
 
 permissions:
   contents: write
@@ -26,8 +27,11 @@ jobs:
   render:
     runs-on: ubuntu-latest
     steps:
+      # Full history, so the incremental render can diff the pushed range.
       - name: Check out the source of record
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Buildx
         uses: docker/setup-buildx-action@v3
@@ -41,17 +45,25 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Render every procedure
+      # Render the procedures this push changed, overlaying them on the previous
+      # output so the `rendered` branch stays a complete set. The script falls
+      # back to a full render when the renderer changed, when the previous state
+      # is unknown, or when the rendered set does not match the sources.
+      - name: Render changed procedures
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
         run: |
           set -euo pipefail
-          mkdir -p out
-          docker run --rm \
-            -v "$PWD:/docs:ro" -v "$PWD/out:/out" \
-            pns-sop-pipeline:ci render-all /docs/sop
+          bash .github/scripts/render-main.sh "$BEFORE" "$AFTER" pns-sop-pipeline:ci
 
       - name: List the rendered documents
         run: ls -l out
 
+      # The artifacts and the `rendered` branch now hold the *complete* current
+      # set, assembled by the overlay, even though only the changed procedures
+      # were freshly rendered.
       - name: Upload the rendered documents
         uses: actions/upload-artifact@v4
         with:
@@ -65,21 +77,3 @@ jobs:
           name: sop-rendered-pdf
           path: out/*.pdf
           if-no-files-found: error
-
-      # A generated branch, not history: it exists so that a reader without a
-      # GitHub Actions account can download the current documents by URL. It
-      # carries no authority — the Markdown on `main` is the source of record.
-      - name: Publish the current documents to the `rendered` branch
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          cd out
-          git init -q
-          git config user.name  "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git commit -qm "Rendered documents from ${GITHUB_SHA}"
-          git branch -M rendered
-          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-          git push -f origin rendered
