@@ -259,6 +259,21 @@ fi
 
 # --- publish ---------------------------------------------------------------
 
+# A dry run exercises the orchestration without a model, so its output is
+# placeholder text. It must never reach the `translated` branch: a branch that
+# looks like a set of generated English documents would be read as one. The
+# artifact is enough for a dry run; publishing is for real renderings only.
+#
+# TRANSLATE_TEST_PUBLISH exists for the local test harness alone, which drives
+# this script against a throwaway bare repository to verify the branch mechanics
+# (overlay, marker, self-heal). It is never set in CI. If it is set, REMOTE_URL
+# must not be the real repository.
+if [ "$DRY_RUN" = "true" ] && [ "${TRANSLATE_TEST_PUBLISH:-false}" != "true" ]; then
+  log "DRY-RUN: not publishing to the 'translated' branch (output is simulated)"
+  log "dry run complete: ${#EXPECTED[@]} document(s), ${#HELD[@]} held"
+  exit 0
+fi
+
 printf '%s\n' "$AFTER" > out/.translated-from
 
 if [ "${#HELD[@]}" -gt 0 ]; then
