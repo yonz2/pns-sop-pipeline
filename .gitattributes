@@ -1,0 +1,23 @@
+# Normalise line endings on checkout so the repository works unchanged on
+# Windows, Linux and macOS. Without this, a Windows clone hands the Docker
+# build CRLF files and the container's entrypoint fails with
+# "bad interpreter: /usr/bin/env bash^M".
+* text=auto eol=lf
+
+# Executed inside the Linux container — LF is mandatory.
+*.sh        text eol=lf
+Dockerfile  text eol=lf
+
+# Source and document text.
+*.js        text eol=lf
+*.py        text eol=lf
+*.md        text eol=lf
+*.yaml      text eol=lf
+*.yml       text eol=lf
+*.json      text eol=lf
+
+# Binary assets must never be touched.
+*.png       binary
+*.dotx      binary
+*.docx      binary
+*.pdf       binary

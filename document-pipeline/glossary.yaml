@@ -1,0 +1,814 @@
+# =====================================================================
+# glossary.yaml - the closed vocabulary of the laboratory SOP corpus
+# =====================================================================
+#
+# Revision 0.1, 1 September 2026. DRAFT - for correction by the department,
+# not for use as an authority.
+#
+# WHAT THIS FILE IS
+#   The fixed vocabulary of the SOP documents: section headings, form field
+#   names, the approval block, status values, positions and units. These terms
+#   are rendered bilingually in the template and therefore NEVER reach a
+#   translator. See R1b-translation-pipeline.md section 3.1.
+#
+#   That single decision removes the entire class of failure in which a machine
+#   helpfully renames "Kode Butir Kegiatan" into something an auditor cannot
+#   find.
+#
+# WHAT THIS FILE IS NOT
+#   It is not a dictionary and it is not for body prose. Body prose is the only
+#   thing the pipeline translates.
+#
+# THE ENGLISH SIDE IS PROVISIONAL
+#   Several of these are terms of art in the PLP credit system. An outside
+#   adviser must not invent them. Every entry carries a "status" field; every
+#   entry marked needs_pns is a blank the department fills, not a suggestion to
+#   be accepted quietly. See open_questions at the end of this file.
+#
+# HOW A CONSUMING PIPELINE USES IT
+#   1. Build a lookup id -> term. Any occurrence of a term's "id" string in the
+#      source is a protected token (check 4 of R1b section 6).
+#   2. Build a lookup key -> (id, en). The renderer emits headings and field
+#      labels from this, never from the translator output.
+#   3. Build a set of "en" strings. If one appears in the translated body where
+#      the source had the matching "id", the model has translated a field name
+#      that should have been protected (check 5).
+#   4. protected_patterns and protected_literals extend the same protection to
+#      identifiers and proper names, which have no bilingual pair.
+#
+# ---------------------------------------------------------------------
+
+meta:
+  version: "0.1"
+  status: draft
+  date: "2026-09-01"
+  source_of_record: id
+  authority: "The department. This file records what an adviser could read from the corpus; it does not settle anything."
+  derived_from:
+    - "input-Poloines/from_Kuwat_260826/II.A.12.b. Menyusun SOP Pengoperasian (six .docx documents)"
+    - "document-pipeline/templates/build-sop-template.js (the rendered form)"
+    - "preparation/D-deliverable-drafts/R1-drafts/ (the nine Tier 1 scaffolds)"
+    - "preparation/D-deliverable-drafts/R1b-translation-pipeline.md (the specification)"
+  term_count_note: >-
+    R1b section 3.1 estimated "perhaps forty terms". The count here is 61,
+    because the corpus carries two section vocabularies (the operating SOP and
+    the management SOP) and because the eleven-row activity record is itself a
+    small form. The set is still closed and still small enough to confirm in one
+    sitting.
+
+# How a term is put on the page. The renderer owns this; the translator never
+# sees it.
+rendering:
+  bilingual_pattern: "{id} / {en}"
+  bilingual_example: "## 1. Tujuan / Purpose"
+  protected_pattern: "{id}"
+  protected_note: >-
+    A term with translate: false is printed in Indonesian only. Its "en" value
+    is a gloss for a reader, not a rendering, and belongs in an annex if it is
+    used at all.
+  separator: " / "
+  separator_collision: >-
+    The template prints one label as "Referensi / Rujukan" - two Indonesian
+    synonyms, not a bilingual pair. The separator therefore already carries two
+    meanings in the corpus. See open_questions, item 4.
+
+# The meaning of the "status" field on each term.
+term_status:
+  confirmed: "The Indonesian is read directly from the corpus AND the English is either self-evident or already used by the department."
+  provisional: "The Indonesian is read from the corpus. The English is the adviser's rendering: plausible, defensible, and not authoritative."
+  needs_pns: "The Indonesian is read from the corpus. The English is a term of art in the PLP or accreditation system and MUST NOT be invented by an outsider. The value shown is a placeholder to make the blank visible."
+
+# The meaning of the "group" field on each term.
+groups:
+  section_heading_operating: "Section headings of an operating SOP (II.A.12.b), as the template renders them."
+  section_heading_management: "Section headings of a laboratory management procedure, as the R1 Tier 1 scaffolds use them."
+  document_control: "The three-row block added by R1-SOP-wireframe section 4. The only structural addition to the form."
+  header_band: "The five-line band repeated on every page. It is a page header, not body text."
+  activity_record: "The eleven-row Rekaman Kegiatan Pengelolaan Laboratorium table and its column labels."
+  approval_block: "The signature block. TWO VARIANTS EXIST IN THE CORPUS - see open_questions, item 1."
+  position: "Job titles and grades. Never translated (R1b section 3.2)."
+  unit: "Units of quantity used in the activity record."
+  status_value: "The lifecycle states of a procedure in the register."
+  records_table: "The column headers of the Rekaman / Records table in the R1 Tier 1 scaffolds."
+
+# ---------------------------------------------------------------------
+# THE TERMS
+# ---------------------------------------------------------------------
+terms:
+
+  # --- Section headings: operating SOP (the template) ------------------
+  - key: tujuan
+    id: "Tujuan"
+    en: "Purpose"
+    group: section_heading_operating
+    status: provisional
+    source: "[C] Access Point document, section 1"
+
+  - key: ruang_lingkup
+    id: "Ruang Lingkup"
+    en: "Scope"
+    group: section_heading_operating
+    status: provisional
+    source: "[C] Access Point document, section 2"
+
+  - key: referensi
+    id: "Referensi"
+    en: "References"
+    group: section_heading_operating
+    status: provisional
+    source: "[C] Access Point document, section 3"
+    note: >-
+      The corpus prints this heading as "Referensi / Rujukan". Both words are
+      Indonesian. Rendering it bilingually would give
+      "Referensi / Rujukan / References", which is unreadable. See
+      open_questions, item 4.
+
+  - key: prinsip_kerja
+    id: "Prinsip Kerja"
+    en: "Working principle"
+    group: section_heading_operating
+    status: provisional
+    source: "[C] Access Point document, section 4"
+
+  - key: cara_pengoperasian
+    id: "Cara Pengoperasian"
+    en: "Operating method"
+    group: section_heading_operating
+    status: provisional
+    source: "[C] Access Point document, section 5"
+
+  - key: langkah_kerja
+    id: "Langkah Kerja"
+    en: "Work step"
+    group: section_heading_operating
+    status: provisional
+    source: "[C] Tang Krimping document, step table column 2"
+
+  - key: penjelasan
+    id: "Penjelasan"
+    en: "Explanation"
+    group: section_heading_operating
+    status: provisional
+    source: "[C] Tang Krimping document, step table column 3"
+
+  - key: nomor_urut
+    id: "No"
+    en: "No."
+    group: section_heading_operating
+    status: confirmed
+    source: "[C] Tang Krimping document, step table column 1"
+
+  # --- Section headings: management procedure (R1 scaffolds) -----------
+  - key: pemilik_dokumen
+    id: "Pemilik dokumen"
+    en: "Document owner"
+    group: section_heading_management
+    status: provisional
+    source: "[A] R1-SOP-wireframe.md section 4. Not in the corpus."
+
+  - key: tinjauan
+    id: "Tinjauan"
+    en: "Review"
+    group: section_heading_management
+    status: provisional
+    source: "[A] R1-SOP-wireframe.md section 4. Not in the corpus."
+
+  - key: prosedur
+    id: "Prosedur"
+    en: "Procedure"
+    group: section_heading_management
+    status: provisional
+    source: "[A] R1 Tier 1 scaffolds, section 6"
+
+  - key: rekaman
+    id: "Rekaman"
+    en: "Records"
+    group: section_heading_management
+    status: provisional
+    source: "[A] R1 Tier 1 scaffolds, section 7"
+    note: >-
+      The same Indonesian word heads both the section and the first column of
+      the table inside it, and the renderer currently prints the column as
+      "Rekaman / Record", singular. One Indonesian term must have exactly one
+      English rendering or the glossary stops being the authority it exists to
+      be, so the column should print "Rekaman / Records" like the section. If
+      the singular is wanted for the column, it is a different term and needs
+      its own key and its own Indonesian word - not a second rendering of this
+      one.
+
+  # --- Records table column headers (R1 Tier 1 scaffolds, section 7) ----
+  - key: rekaman_disimpan_oleh
+    id: "Disimpan oleh"
+    en: "Kept by"
+    group: records_table
+    status: provisional
+    source: "[A] R1 Tier 1 scaffolds, section 7, records table"
+
+  - key: rekaman_di_mana
+    id: "Di mana"
+    en: "Where"
+    group: records_table
+    status: provisional
+    source: "[A] R1 Tier 1 scaffolds, section 7, records table"
+
+  - key: rekaman_masa_simpan
+    id: "Masa simpan"
+    en: "Retained"
+    group: records_table
+    status: provisional
+    source: "[A] R1 Tier 1 scaffolds, section 7, records table"
+
+  - key: pengesahan
+    id: "Pengesahan"
+    en: "Approval"
+    group: section_heading_management
+    status: provisional
+    source: "[A] R1 Tier 1 scaffolds, section 8"
+
+  # --- Document control block (the one addition) -----------------------
+  - key: pengendalian_dokumen
+    id: "Pengendalian Dokumen"
+    en: "Document control"
+    group: document_control
+    status: provisional
+    source: "[A] Added by R1-SOP-wireframe.md section 4. Delete the block and this term with it if the department declines it."
+
+  - key: tinjauan_berikutnya
+    id: "Tinjauan berikutnya"
+    en: "Next review"
+    group: document_control
+    status: provisional
+    source: "[A] As above"
+
+  - key: rekaman_yang_dihasilkan
+    id: "Rekaman yang dihasilkan"
+    en: "Records produced"
+    group: document_control
+    status: provisional
+    source: "[A] As above"
+
+  # --- Header band ------------------------------------------------------
+  - key: form_title
+    id: "REKAMAN KEGIATAN PENGELOLAAN LABORATORIUM"
+    en: "[[PNS: the official English title of this national form, if one exists]]"
+    group: header_band
+    status: needs_pns
+    source: "[C] header2.xml, identical in all six documents"
+    note: "This is a prescribed national form. Its English title is not an adviser's to coin."
+
+  - key: sop_pengoperasian_alat
+    id: "SOP PENGOPERASIAN ALAT"
+    en: "Equipment Operating SOP"
+    group: header_band
+    status: provisional
+    source: "[C] header band, all six documents"
+
+  - key: no_formulir
+    id: "No. Formulir"
+    en: "Form number"
+    group: header_band
+    status: provisional
+    source: "[C] header band"
+
+  - key: edisi_revisi
+    id: "Edisi/Revisi"
+    en: "Edition/Revision"
+    group: header_band
+    status: provisional
+    source: "[C] header band"
+
+  - key: tgl_berlaku
+    id: "Tgl berlaku"
+    en: "Effective date"
+    group: header_band
+    status: provisional
+    source: "[C] header band"
+
+  - key: halaman
+    id: "Halaman"
+    en: "Page"
+    group: header_band
+    status: confirmed
+    source: "[C] header band. Rendered as a real field pair, not typed text."
+
+  - key: halaman_dari
+    id: "dari"
+    en: "of"
+    group: header_band
+    status: confirmed
+    source: "[C] header band, in 'Halaman : n dari m'"
+    note: "Short and common. Protect it only inside the page-number construction, never as a free-standing word in body prose."
+
+  - key: nama_laboratorium
+    id: "Nama Laboratorium"
+    en: "Laboratory name"
+    group: header_band
+    status: confirmed
+    source: "[C] header band"
+
+  - key: nama_plp
+    id: "Nama PLP"
+    en: "Name of PLP"
+    group: header_band
+    status: provisional
+    source: "[C] header band"
+
+  # --- Activity record (Rekaman Kegiatan) ------------------------------
+  - key: unsur
+    id: "Unsur"
+    en: "[[PNS: the English term used for Unsur in the PLP credit framework]]"
+    group: activity_record
+    status: needs_pns
+    source: "[C] activity record, row 1"
+    note: "A structural level of the national credit framework. 'Element' is a guess and is not offered."
+
+  - key: jenis_kegiatan
+    id: "Jenis Kegiatan"
+    en: "[[PNS: the English term used for Jenis Kegiatan in the PLP credit framework]]"
+    group: activity_record
+    status: needs_pns
+    source: "[C] activity record, row 2"
+
+  - key: nama_kegiatan
+    id: "Nama kegiatan"
+    en: "Activity name"
+    group: activity_record
+    status: provisional
+    source: "[C] activity record, row 3"
+
+  - key: kode_butir_kegiatan
+    id: "Kode Butir Kegiatan"
+    en: "[[PNS: the English term used for Kode Butir Kegiatan]]"
+    group: activity_record
+    status: needs_pns
+    source: "[C] activity record, row 4"
+    note: "This is the field the credit claim rests on. It must match the department's own usage exactly."
+
+  - key: angka_kredit_acuan
+    id: "Angka Kredit Acuan"
+    en: "[[PNS: the English term used for Angka Kredit]]"
+    group: activity_record
+    status: needs_pns
+    source: "[C] activity record. Value 0,32 in all six documents."
+
+  - key: angka_kredit_dihitung
+    id: "Angka Kredit Dihitung"
+    en: "[[PNS: as above, with the sense of 'as calculated']]"
+    group: activity_record
+    status: needs_pns
+    source: "[C] activity record"
+
+  - key: jumlah_plp_terlibat
+    id: "Jumlah PLP Terlibat"
+    en: "Number of PLP involved"
+    group: activity_record
+    status: provisional
+    source: "[C] activity record"
+
+  - key: volume_kegiatan
+    id: "Volume Kegiatan"
+    en: "Activity volume"
+    group: activity_record
+    status: provisional
+    source: "[C] activity record"
+
+  - key: waktu_pelaksanaan
+    id: "Waktu Pelaksanaan"
+    en: "Date carried out"
+    group: activity_record
+    status: provisional
+    source: "[C] activity record"
+
+  - key: semester_tahun_akademik
+    id: "Semester dan tahun akademik"
+    en: "Semester and academic year"
+    group: activity_record
+    status: confirmed
+    source: "[C] activity record"
+
+  - key: pengelolaan_laboratorium
+    id: "Pengelolaan Laboratorium"
+    en: "Laboratory management"
+    group: activity_record
+    status: provisional
+    source: "[C] activity record, pre-filled value"
+
+  - key: perancangan_kegiatan_laboratorium
+    id: "Perancangan kegiatan Laboratorium"
+    en: "Design of laboratory activities"
+    group: activity_record
+    status: provisional
+    source: "[C] activity record, pre-filled value"
+
+  - key: menyusun_sop_pengoperasian_peralatan
+    id: "Menyusun SOP Pengoperasian Peralatan"
+    en: "Drafting equipment operating SOPs"
+    group: activity_record
+    status: provisional
+    source: "[C] activity record, pre-filled value"
+
+  - key: tanggal
+    id: "Tanggal"
+    en: "Date"
+    group: activity_record
+    status: confirmed
+    source: "[C] approval block and activity record"
+
+  # --- Approval block: 2025 operating SOPs (the current variant) -------
+  - key: verifikasi
+    id: "Verifikasi"
+    en: "Verification"
+    group: approval_block
+    variant: "operating_2025"
+    status: provisional
+    source: "[C] Access Point and Cloud Switch documents, approval block title row"
+    note: >-
+      The corpus spells this "Verivikasi". The template corrects it, because a
+      typo in a template propagates into every document made from it. Revert if
+      the form is prescribed centrally with the misspelling.
+
+  - key: verifikator
+    id: "Verifikator"
+    en: "Verifier"
+    group: approval_block
+    variant: "operating_2025"
+    status: provisional
+    source: "[C] Access Point and Cloud Switch documents"
+
+  - key: disahkan_oleh
+    id: "Disahkan Oleh"
+    en: "Authorised by"
+    group: approval_block
+    variant: "operating_2025"
+    status: provisional
+    source: "[C] Access Point and Cloud Switch documents"
+    note: "'Disahkan' carries the sense of ratified or made legally valid. 'Authorised by' is the adviser's rendering; 'Ratified by' is equally defensible."
+
+  - key: dibuat_oleh
+    id: "Dibuat Oleh"
+    en: "Prepared by"
+    group: approval_block
+    variant: "operating_2025"
+    status: provisional
+    source: "[C] Access Point and Cloud Switch documents"
+
+  # --- Approval block: 2020 borrowing procedure (the older variant) ----
+  - key: dibuat
+    id: "Dibuat"
+    en: "Prepared"
+    group: approval_block
+    variant: "borrowing_2020"
+    status: provisional
+    source: "[C] SOP borrowing procedure, 2020"
+
+  - key: diperiksa
+    id: "Diperiksa"
+    en: "Checked"
+    group: approval_block
+    variant: "borrowing_2020"
+    status: provisional
+    source: "[C] SOP borrowing procedure, 2020"
+
+  - key: disetujui
+    id: "Disetujui"
+    en: "Approved"
+    group: approval_block
+    variant: "borrowing_2020"
+    status: provisional
+    source: "[C] SOP borrowing procedure, 2020"
+
+  # --- Positions and grades. Never translated. -------------------------
+  - key: plp
+    id: "PLP"
+    en: "[[PNS: the department's own English rendering of Pranata Laboratorium Pendidikan]]"
+    group: position
+    translate: false
+    status: needs_pns
+    source: "[C] throughout"
+    note: "Printed as PLP in both languages. The English is a gloss for an annex, never a substitution."
+
+  - key: nip
+    id: "NIP"
+    en: "employee identification number (Nomor Induk Pegawai)"
+    group: position
+    translate: false
+    status: provisional
+    source: "[C] approval block"
+
+  - key: kepala_laboratorium
+    id: "Ka. Lab Laboratorium"
+    en: "Head of Laboratory"
+    group: position
+    translate: false
+    status: provisional
+    source: "[C] approval block, Access Point document"
+    note: "[C] For the Informatics Laboratory this is Handoko, S.Kom., M.Kom."
+
+  - key: plp_pertama
+    id: "PLP Pertama"
+    en: "[[PNS: the official English name of this PLP grade]]"
+    group: position
+    translate: false
+    status: needs_pns
+    source: "[C] approval block"
+
+  - key: ahli_muda
+    id: "Ahli Muda"
+    en: "[[PNS: the official English name of this functional grade]]"
+    group: position
+    translate: false
+    status: needs_pns
+    source: "[C] approval block"
+
+  # --- Units --------------------------------------------------------
+  - key: unit_kegiatan
+    id: "Kegiatan"
+    en: "activities"
+    group: unit
+    status: confirmed
+    source: "[C] activity record, Volume Kegiatan row"
+
+  - key: unit_orang
+    id: "Orang"
+    en: "persons"
+    group: unit
+    status: confirmed
+    source: "[C] activity record, Jumlah PLP Terlibat row"
+
+  # --- Status values in the register --------------------------------
+  - key: status_draf
+    id: "Draf"
+    en: "Draft"
+    group: status_value
+    status: confirmed
+    source: "[A] R1-SOP-wireframe.md section 4, step 1"
+
+  - key: status_berlaku
+    id: "Berlaku"
+    en: "In force"
+    group: status_value
+    status: provisional
+    source: "[A] Proposed, not observed in the corpus. See open_questions, item 5."
+
+  - key: status_dalam_tinjauan
+    id: "Dalam tinjauan"
+    en: "Under review"
+    group: status_value
+    status: provisional
+    source: "[A] Proposed, not observed"
+
+  - key: status_digantikan
+    id: "Digantikan"
+    en: "Superseded"
+    group: status_value
+    status: provisional
+    source: "[A] Proposed, not observed"
+
+  - key: status_ditarik
+    id: "Ditarik"
+    en: "Withdrawn"
+    group: status_value
+    status: provisional
+    source: "[A] Proposed, not observed"
+
+# ---------------------------------------------------------------------
+# PROTECTED TOKENS - identifiers with no bilingual pair.
+# Check 4 of R1b section 6: every one of these must appear in the output
+# the same number of times, unchanged.
+# ---------------------------------------------------------------------
+protected_patterns:
+  - key: plp_activity_code
+    pattern: '\bII\.[A-Z]\.[0-9]{1,2}\.[a-z](\.[a-z])?\b'
+    example: "II.A.12.b"
+    note: "The credit code. See open_questions, item 2 - the corpus is internally inconsistent about it."
+
+  - key: sop_id_tier1
+    pattern: '\bLAB-[A-Z0-9]{3}\b'
+    example: "LAB-000"
+    note: "The nine laboratory management procedures of R1-SOP-wireframe.md."
+
+  - key: sop_id_tier2
+    pattern: '\bIOT-[0-9]{2}\b'
+    example: "IOT-02"
+    note: "The equipment and system procedures."
+
+  - key: institutional_document_number
+    pattern: '\bSOP-[0-9]{2}\.[0-9]{3}-[A-Z]+-[0-9]{4}\b'
+    example: "SOP-02.002-BPTI-2020"
+
+  - key: nip_number
+    pattern: '\b[0-9]{18}\b'
+    example: "an 18-digit NIP"
+    note: "Also covered by check 6, the numeric multiset. Named here so a failure reports something a reader understands."
+
+  - key: form_number
+    pattern: "[[PNS: the format of No. Formulir is not visible in the corpus - every copy holds a blank]]"
+    example: null
+    note: "Until the format is known this field cannot be protected by pattern. It is protected in practice because it lives in the header band, which is rendered, not translated."
+
+  - key: architecture_role_slot
+    pattern: '\b(Area-Concentrator|IoT-Node|Remote-Site|ESP32-Net|ESP32-Area)-[0-9]{2}\b'
+    example: "Area-Concentrator-01"
+    note: >-
+      Role-slot names from Architecture/ESP32-Area-Concentrator-HLD.md section 3.
+      Hyphenated because they are deployed identifiers, not prose - see the
+      naming convention in Architecture/HLD.md section 2.
+
+  - key: architecture_synthetic_machine
+    pattern: '\bFAS-[A-Za-z]+-[0-9]{2}\b'
+    example: "FAS-Press-01"
+    note: >-
+      Device-naming prefix for the Factory as Code fleet. FAS is a prefix only -
+      it is never expanded in prose and never spoken aloud (Architecture/HLD.md
+      section 2).
+
+  - key: architecture_subnet
+    pattern: '\b192\.168\.1[0-9]\.0/24\b'
+    example: "192.168.11.0/24"
+    note: "Per-Area subnets. Also covered by check 6, the numeric multiset; named here so a failure reports something a reader understands."
+
+# ---------------------------------------------------------------------
+# PROTECTED LITERALS
+# Two families. The institutional names have always been here. The
+# architecture vocabulary was added on 13 September 2026 because the
+# network and equipment procedures (LAB-NET, IOT-01 to IOT-08) use it,
+# and a translator will otherwise render "Area Concentrator" as
+# "Konsentrator Area" and "Gateway" as "Gerbang" - helpfully, and
+# wrongly, because these are names rather than descriptions.
+#
+# Source of record: the Architecture documents, HLD.md section 2
+# (vocabulary) and section 3 (zone inventory). If a definition here and
+# a definition there disagree, HLD.md is the one to trust.
+#
+# Naming convention, from HLD.md section 2, and it applies to every
+# entry below: PROSE IS SPACED, DEPLOYED IDENTIFIERS KEEP THEIR HYPHENS.
+# So "Area Concentrator" in a sentence, "Area-Concentrators" when naming
+# a group, a setup key, a playbook or a host. Names with no hyphenated
+# form - "Factory as Code", "Gateway" - are spaced everywhere. Both
+# forms are protected, and check 5 must not silently convert one into
+# the other.
+# ---------------------------------------------------------------------
+protected_literals:
+
+  # -- Institution and its units ------------------------------------
+  - "Politeknik Negeri Semarang"
+  - "Polines"
+  - "UPT TIK"
+  - "Jurusan Teknik Elektro"
+  - "Laboratorium"
+
+  # -- Architecture vocabulary, prose form (HLD.md section 2) --------
+  # "Tier" is deliberately NOT in this list - see tier_collision_note.
+  - "Zone"
+  - "Conduit"
+  - "Area Concentrator"
+  - "IoT Node"
+  - "Gateway"
+  - "Network-Layer Forwarder"
+  - "Factory as Code"
+  - "Digital Twin Core"
+  - "Digital Shadow"
+  - "Legacy Bench"
+  - "Student Bench"
+  - "AIoT Laboratory Zone"
+
+  # -- Architecture vocabulary, deployed identifiers -----------------
+  - "Area-Concentrators"
+  - "IoT-Nodes"
+  - "Gateway-bute"
+  - "Remote-Site-01"
+  - "Factory-Twin"
+  - "Admins"
+  - "area_concentrators"
+
+  # -- Hosts and peers in the reference implementation ---------------
+  - "bute"
+  - "bute-iot-gateway"
+  - "tiree"
+  - "coll"
+  - "iona"
+  - "arran"
+  - "jura"
+
+  # -- Named components and standards --------------------------------
+  - "NetBird"
+  - "WireGuard"
+  - "Mosquitto"
+  - "Node-RED"
+  - "ThingsBoard"
+  - "ESPHome"
+  - "Docker Model Runner"
+  - "Semaphore"
+  - "Ansible"
+  - "Raspberry Pi"
+  - "ESP32"
+  - "ESP8266"
+  - "Arduino"
+  - "MQTT"
+  - "IEC 62443"
+  - "IEC 62443-3-2"
+
+protected_literals_note: >-
+  Proper names, in three families: the institution and its units; the
+  architecture vocabulary defined in the Architecture documents; and the named
+  components and standards those documents use. This list grows as documents
+  are written; every other equipment model name, hostname and command in a
+  procedure is also protected, by category rather than by enumeration - see R1b
+  section 3.2.
+
+tier_collision_note: >-
+  "Tier" is used for two different things in this project and is therefore not
+  protected as a literal until the collision is resolved. Architecture/HLD.md
+  section 2 defines a Tier as a device's trust position and function inside a
+  zone - never a boundary. R1-SOP-wireframe.md uses Tier 1 and Tier 2 for
+  document families, management and equipment. Protecting the bare word would
+  freeze whichever usage a document happened to carry. The proposal on the
+  table is to rename the document families to "management procedures" and
+  "equipment procedures", which is also the language the PLP activity codes
+  use, and to leave Tier to the architecture. Until the department decides,
+  check 4 does not police the word. Recorded as open question 7.
+
+architecture_vocabulary_note: >-
+  The Architecture documents are the source of record for every term in the
+  second and third families above, and for how each is written. Two terms carry
+  a caution that a translator cannot infer and a reader should not have to. FAS
+  is a device-naming prefix only: it is never expanded and never spoken.
+  "Digital Shadow" and "Digital Twin" describe a simulated asset only and never
+  a twin or shadow of a real machine - that qualifier stays attached in every
+  language. See Architecture/Digital-Shadow-Addendum.md.
+
+# ---------------------------------------------------------------------
+# OPEN QUESTIONS
+# Each of these is a decision for the department. None of them blocks a
+# pipeline being built; all of them block a document being signed.
+# ---------------------------------------------------------------------
+open_questions:
+
+  - id: 1
+    question: "Which approval chain governs a new procedure?"
+    detail: >-
+      The corpus holds two. The 2020 borrowing procedure uses
+      Dibuat -> Diperiksa -> Disetujui. The 2025 operating SOPs use
+      Verifikator / Disahkan Oleh / Dibuat Oleh. Both variants are in this file
+      under a "variant" field so that neither is lost. The template renders the
+      2025 form.
+    blocks: "The approval block of every rendered document."
+
+  - id: 2
+    question: "II.A.12.a or II.A.12.b?"
+    detail: >-
+      The file names say II.A.12.b. The content of every document says
+      II.A.12.a. The template leaves Kode Butir Kegiatan blank rather than
+      guessing.
+    blocks: "The credit claim."
+
+  - id: 3
+    question: "Is there a published English rendering of the PLP terms of art?"
+    detail: >-
+      Nine entries in this file are marked needs_pns. If the ministry or the
+      institution already publishes an English form, that rendering is the
+      answer and this file adopts it unchanged. If not, the department chooses
+      once, here, and every document afterwards is consistent.
+    blocks: "Nothing structural. The English rendering can be built with the placeholders visible - which is preferable to an invented term that then has to be unpicked."
+
+  - id: 4
+    question: "How is 'Referensi / Rujukan' rendered bilingually?"
+    detail: >-
+      Both words are Indonesian, so the slash already means something other
+      than a language boundary in the corpus. The proposal in this file is to
+      print "Referensi / References" and drop Rujukan, on the ground that the
+      two Indonesian words are synonyms and the heading has to stay short.
+    blocks: "One heading."
+
+  - id: 5
+    question: "Is the status vocabulary correct?"
+    detail: >-
+      Only "Draf" is taken from work already done. Berlaku, Dalam tinjauan,
+      Digantikan and Ditarik are proposed by the adviser and have no basis in
+      the corpus, which has no register at all. The department may already have
+      words for these states.
+    blocks: "The SOP register, LAB-000."
+
+  - id: 6
+    question: "Does the department want an English rendering at all, for which documents?"
+    detail: >-
+      R1b section 1 argues the case from accreditation. That argument is the
+      adviser's, and the decision is not. If only the accreditation-facing
+      procedures need English, the pipeline runs on a subset and this glossary
+      is unchanged.
+    blocks: "Nothing. It changes how much is run, not what is built."
+
+  - id: 7
+    question: "Do the document families keep the name 'Tier'?"
+    detail: >-
+      Architecture/HLD.md section 2 defines Tier as a device's trust position
+      inside a zone, never a boundary. R1-SOP-wireframe.md uses Tier 1 and
+      Tier 2 for document families. Both vocabularies appear in the same
+      deliverable set and both appear in LAB-NET. The proposal is to rename the
+      document families to "management procedures" and "equipment procedures" -
+      the language the activity codes already use - and to leave Tier to the
+      architecture. This is an adviser's proposal, raised 13 September 2026.
+    blocks: >-
+      Nothing structural. It blocks "Tier" being added to protected_literals,
+      and it decides one front-matter key and one column heading in
+      R1-drafts/README.md.
