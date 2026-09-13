@@ -1,0 +1,21 @@
+# CODEOWNERS — who reviews what.
+#
+# This file names the reviewers a pull request must be approved by before it can
+# be merged. It only has force once the branch protection rule on `main` is set
+# to "Require review from Code Owners" (see docs/git-workflow.md, §7).
+#
+# Replace the placeholder owners below with the department's own GitHub accounts
+# when the repository is handed over. Until then they resolve to the maintainer,
+# and nobody can approve their own pull request — so at least two people with
+# write access are needed for the gate to mean anything.
+
+# Default owner for everything in the repository: the maintainer.
+*                       @yonz2
+
+# The laboratory procedures. Every change to a document of record is reviewed by
+# a laboratory code owner — the head of the laboratory, or a PLP they nominate.
+/sop/                   @yonz2
+
+# The renderer and the form template. A change here changes every document the
+# pipeline produces, so it is reviewed with the same care as a document.
+/document-pipeline/     @yonz2

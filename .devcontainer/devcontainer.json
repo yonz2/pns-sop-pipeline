@@ -1,0 +1,31 @@
+{
+  "name": "PNS SOP Pipeline",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "workspace",
+  "workspaceFolder": "/workspaces/pns-sop-pipeline",
+  "shutdownAction": "stopCompose",
+  "postCreateCommand": "echo \"Render every procedure:  ./document-pipeline/entrypoint.sh render-all ./sop   (outputs to ./out)\"",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "files.eol": "\n",
+        "editor.insertSpaces": true,
+        "editor.tabSize": 2,
+        "[markdown]": {
+          "editor.wordWrap": "on",
+          "editor.rulers": [100]
+        },
+        "files.associations": {
+          "*.yaml": "yaml"
+        }
+      },
+      "extensions": [
+        "yzhang.markdown-all-in-one",
+        "redhat.vscode-yaml",
+        "DavidAnson.vscode-markdownlint",
+        "ms-azuretools.vscode-docker",
+        "streetsidesoftware.code-spell-checker"
+      ]
+    }
+  }
+}

@@ -1,0 +1,115 @@
+name: Render draft (unapproved)
+
+# The exception. Renders the documents on a branch that has NOT been reviewed or
+# approved, so a draft can be circulated for comment before the pull request is
+# merged. This workflow never touches `main` and never promotes a draft: it
+# publishes the output to a `draft-*` branch and as a downloadable artifact.
+#
+# Run it from the Actions tab (Run workflow) and choose the branch to render.
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Branch to render a draft from"
+        required: true
+        default: "main"
+      label:
+        description: "Short label for the output branch (optional)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  render-draft:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the requested branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      # A branch name may contain '/' (e.g. sop/LAB-NET), which is not a legal
+      # artifact name and is awkward in a branch name. Derive one slug and use it
+      # everywhere downstream. Inputs are passed through the environment, never
+      # spliced into the script, so a branch name cannot become shell.
+      - name: Derive the draft label
+        env:
+          INPUT_REF: ${{ inputs.ref }}
+          INPUT_LABEL: ${{ inputs.label }}
+        run: |
+          set -euo pipefail
+          source="$INPUT_LABEL"
+          [ -n "$source" ] || source="$INPUT_REF"
+          slug="$(printf '%s' "$source" \
+            | tr '[:upper:]' '[:lower:]' \
+            | sed -E 's/[^a-z0-9]+/-/g; s/^-+|-+$//g')"
+          [ -n "$slug" ] || slug="draft"
+          echo "slug=$slug" >> "$GITHUB_ENV"
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build the renderer image
+        uses: docker/build-push-action@v6
+        with:
+          context: document-pipeline
+          load: true
+          tags: pns-sop-pipeline:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Mark the output as a draft
+        env:
+          INPUT_REF: ${{ inputs.ref }}
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          {
+            echo "# RENDERED DRAFT — NOT APPROVED"
+            echo
+            echo "Rendered from branch \`$INPUT_REF\` at commit \`${GITHUB_SHA}\`."
+            echo "These documents have **not** been reviewed or approved. The source"
+            echo "of record is the Markdown on \`main\`."
+            echo
+            echo "Generated $(date -u +%Y-%m-%dT%H:%M:%SZ)."
+          } > out/DRAFT-README.md
+
+      - name: Render every procedure
+        run: |
+          set -euo pipefail
+          docker run --rm \
+            -v "$PWD:/docs:ro" -v "$PWD/out:/out" \
+            pns-sop-pipeline:ci render-all /docs/sop
+
+      - name: Upload the draft documents
+        uses: actions/upload-artifact@v4
+        with:
+          name: sop-draft-${{ env.slug }}
+          path: out/
+          if-no-files-found: error
+
+      - name: Publish the draft to a draft-* branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_REF: ${{ inputs.ref }}
+        run: |
+          set -euo pipefail
+          target="draft-${slug}"
+          cd out
+          git init -q
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -qm "Draft render from ${GITHUB_SHA}"
+          git branch -M "$target"
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push -f origin "$target"
+          {
+            echo "## Draft rendered"
+            echo
+            echo "- Source: \`$INPUT_REF\` at \`${GITHUB_SHA}\`"
+            echo "- Published to branch: \`$target\`"
+          } >> "$GITHUB_STEP_SUMMARY"

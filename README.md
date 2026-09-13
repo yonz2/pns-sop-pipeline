@@ -70,6 +70,27 @@ Git is the document management system:
 corrected and rewritten by the department; the notes in each file and in `sop/README.md`
 record what is still an assumption and what has been confirmed.
 
+## Editing in a dev container
+
+`.devcontainer/` builds the renderer image and opens the repository inside it, so the
+same tools are available locally as in CI. In VS Code: **Reopen in Container**, then
+render in the integrated terminal.
+
+```bash
+./document-pipeline/entrypoint.sh render-all ./sop   # -> ./out/*.docx, ./out/*.pdf
+```
+
+## The workflow
+
+`docs/git-workflow.md` is the full account: topic branches, review by code owners on
+pull requests, integration into `main`, and the renderer running on merge. Two workflows
+implement it:
+
+- `.github/workflows/render.yml` — renders `sop/` whenever a change reaches `main`, and
+  publishes the result to the `rendered` branch.
+- `.github/workflows/render-draft.yml` — renders an unapproved branch on demand, for
+  circulating a draft before it is approved.
+
 ## The full command set
 
 `document-pipeline/README.md` documents every command — `render`, `render-all`,

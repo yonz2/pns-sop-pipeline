@@ -1,0 +1,23 @@
+services:
+  workspace:
+    build:
+      context: ../document-pipeline
+      dockerfile: Dockerfile
+    image: pns-sop-pipeline:dev
+    init: true
+
+    # The image's entrypoint is the one-shot CLI (render / render-all / ...).
+    # A dev container must stay alive, so wrap the CLI in a shell and idle.
+    # A one-off render overrides `command`, which becomes the script for `sh -c`.
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["while sleep 1000; do :; done"]
+
+    working_dir: /workspaces/pns-sop-pipeline
+    volumes:
+      - ..:/workspaces/pns-sop-pipeline
+
+    # Rendered output lands in the bind-mounted ./out so it survives the
+    # container. DOCS_DIR is only a default; commands name their path.
+    environment:
+      DOCS_DIR: /workspaces/pns-sop-pipeline
+      OUT_DIR: /workspaces/pns-sop-pipeline/out
