@@ -83,13 +83,38 @@ render in the integrated terminal.
 ## The workflow
 
 `docs/git-workflow.md` is the full account: topic branches, review by code owners on
-pull requests, integration into `main`, and the renderer running on merge. Two workflows
-implement it:
+pull requests, integration into `main`, and the pipeline running on merge. Three
+workflows implement it:
 
 - `.github/workflows/render.yml` — renders `sop/` whenever a change reaches `main`, and
-  publishes the result to the `rendered` branch.
+  publishes the Indonesian documents to the `rendered` branch.
+- `.github/workflows/translate.yml` — generates the **English renderings** on merge and on
+  demand, validates each one deterministically, and publishes them to the `translated`
+  branch. See "The English rendering" below.
 - `.github/workflows/render-draft.yml` — renders an unapproved branch on demand, for
   circulating a draft before it is approved.
+
+### The English rendering
+
+**Indonesian is the source of record. The English document is generated from it** — never
+authored, never stored in `sop/` (`R1b-translation-pipeline.md`). On merge to `main`, the
+`translate` workflow runs the Indonesian source through a language model, puts the result
+through eleven deterministic checks (`validate.py`), renders it through the same form as
+the Indonesian, and publishes it to the `translated` branch.
+
+Three properties are deliberate and worth knowing before changing anything:
+
+- **The model is a configuration value, not a redesign.** Set `LLM_ENDPOINT` and
+  `LLM_MODEL` as repository **variables** and `LLM_API_KEY` as a **secret**, under
+  *Settings → Secrets and variables → Actions*. Any OpenAI-compatible endpoint will do:
+  a local model runner on campus or a cloud service, as the institution decides.
+- **A generated document that fails validation is held, not published.** It is listed in
+  `HELD.md` on the `translated` branch, and the workflow fails. An English procedure with
+  a caveat at the top would be read as a procedure and the caveat would not be read at all.
+- **An unconfigured endpoint does not block the documents in force.** On a merge it warns
+  and skips; the Indonesian source of record is unaffected. Run the workflow manually with
+  **force full** or **dry run** as needed (`dry_run` exercises the orchestration without a
+  model, for testing).
 
 ## The full command set
 

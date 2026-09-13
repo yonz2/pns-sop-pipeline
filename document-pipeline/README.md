@@ -53,6 +53,14 @@ docker run --rm \
 | `translate <file.md> [<out.md>]` | Generate the English rendering via the configured LLM endpoint |
 | `validate <source.md> <translated.md>` | Run the 11 deterministic checks of `R1b` §6 |
 
+**The English document is generated in three steps, and the workflow runs all three:**
+`translate` produces `out/<name>.en.md`, `validate` checks it against the source and holds
+it on any failure, and `render` turns it into the institutional form (`out/<name>.en.docx`
+and `.en.pdf`). `translate` merges the provenance front matter (R1b §8) **over** the source
+document's own metadata, so the rendering keeps the source identity that check 7 and the
+renderer both require. `.github/scripts/translate-main.sh` is the orchestration; it decides
+what to (re)translate from what changed, exactly as `render-main.sh` does.
+
 ## Configuration
 
 | Variable | Used by | Meaning |
