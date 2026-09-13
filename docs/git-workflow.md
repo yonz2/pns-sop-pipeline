@@ -214,19 +214,30 @@ to.
 
 ## 7. Protecting `main`
 
-The approval requirement does not exist until it is configured. A maintainer sets, on
-`main`:
+The approval requirement does not exist until it is configured. On `main` the following
+are set:
 
 - **Require a pull request before merging** — no direct pushes.
-- **Require approvals: at least 1.**
 - **Require review from Code Owners** — this is what gives `CODEOWNERS` force.
 - **Dismiss stale approvals when new commits are pushed** — an approval refers to a
   specific revision of the diff, not to the branch in general.
-- **Require linear history** (optional but recommended) — keeps `main` a sequence of
-  integration points rather than a web of merges.
+- **Require conversation resolution** — no open review thread may be left unresolved.
+- **No force-pushes, no deletions.**
+- **Required approvals: 0 at present.** Raise this to **1** as soon as a second account
+  with write access exists. It is 0 only because the repository currently has a single
+  collaborator and GitHub forbids approving one's own pull request — with 1 required
+  and one account, no pull request could ever be merged. **A gate that cannot be passed
+  is not a gate**; the setting is deliberately at the value that lets the repository
+  function until a reviewer is added.
+- **Administrators may bypass.** `enforce_admins` is off, so an administrator can push
+  directly and can force-push. **Do not rely on this**: it is an escape hatch for
+  recovery, not a working method. Turn it on once the repository is handed over and the
+  administrator is no longer also the author.
 
 Until these are set, `main` is unprotected and the workflow is only a convention. With
-them set, **Git enforces the review** rather than relying on anyone's discipline.
+them set, **Git enforces the review** rather than relying on anyone's discipline. The
+one setting that is currently below full strength is the number of required approvals,
+and it is documented above rather than allowed to look complete.
 
 ---
 
