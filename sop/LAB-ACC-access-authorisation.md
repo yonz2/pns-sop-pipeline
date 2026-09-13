@@ -136,5 +136,3 @@ sebuah prosedur diabaikan.
 
 `[?]` Satu fakta yang tanpanya prosedur ini tidak dapat ditulis: bagaimana ruangan diamankan saat ini.
 `[[PNS: kunci, kartu, kode, atau seseorang yang membuka dan menutupnya]]`
-
-<!-- incremental-render verification -->
