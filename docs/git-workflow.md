@@ -146,16 +146,45 @@ The workflow `.github/workflows/render.yml` runs whenever a push to `main` touch
 `sop/**` or `document-pipeline/**`. It:
 
 1. builds the renderer image,
-2. runs `render-all` over `sop/`,
-3. uploads the `.docx` and `.pdf` files as workflow artifacts (downloadable from the
-   Actions run), and
-4. force-pushes them to a derived branch, **`rendered`**, so the current documents are
+2. renders the procedures the push actually changed — **not the whole corpus** —
+3. uploads the complete current set as workflow artifacts (downloadable from the Actions
+   run), and
+4. force-pushes it to a derived branch, **`rendered`**, so the current documents are
    always reachable at a stable URL.
+
+#### Only the changed procedures are rendered
+
+The work is **incremental**, and the reasoning is worth stating because it is not only an
+optimisation. The `rendered` branch must always hold the *complete* set of documents, so
+the changed procedures are re-rendered and then **overlaid on the previous output**,
+rather than the branch being regenerated from nothing. The result is identical to a full
+render; the work is not.
+
+The diff base is **the commit recorded in `.rendered-from` on the `rendered` branch** —
+the commit that last successfully produced the branch — not the push's `before` sha. That
+one choice makes the render idempotent and self-catching-up: **if a previous run was
+cancelled or failed, the next run diffs from the last successful render and picks up
+everything it missed.** A marker that is absent, or no longer an ancestor of the pushed
+commit (after a force-push or history rewrite), is ignored in favour of the `before` sha;
+if that too is unusable, a full render is done.
+
+A full render is forced whenever:
+
+- **anything under `document-pipeline/` changed** — the renderer, the form template or the
+  glossary, any of which can change every document the pipeline produces;
+- there is **no `rendered` branch** yet, or no usable diff base;
+- the **completeness check** fails: after the incremental pass, the rendered set is
+  compared against the sources, and a missing document or an output with no source
+  triggers a full render. This makes the mechanism self-healing rather than merely fast.
+
+A document that is deleted on `main` has its rendered output removed on the next run, so
+the `rendered` branch never carries a document that no longer exists.
 
 **The `rendered` branch carries no authority.** It is overwritten on every merge and its
 history is not preserved. The Markdown on `main` is the source of record; `rendered` is a
 convenience view of it. Do not branch from it, do not merge it, do not cite its commit
-hashes.
+hashes. (`.rendered-from` is internal bookkeeping for the incremental render; it is not
+part of the document set.)
 
 ### On demand — the draft exception
 
