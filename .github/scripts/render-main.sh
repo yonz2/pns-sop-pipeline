@@ -193,6 +193,17 @@ fi
 
 printf '%s\n' "$AFTER" > out/.rendered-from
 
+# A README that tells a reader how to download the files correctly. A GitHub
+# `/blob/` URL is the HTML viewer page, not the document; without this, saving
+# that page yields an .htm file and Word reports the document as unreadable.
+# See .github/scripts/write-branch-readme.sh.
+if [ "$DRY_RUN" != "true" ]; then
+  bash "$(dirname "$0")/write-branch-readme.sh" \
+    out rendered \
+    "Rendered SOP documents" \
+    "The Word and PDF forms of the laboratory procedures, rendered from the Markdown sources in \`sop/\` on \`main\`."
+fi
+
 cd out
 git init -q
 git config user.name  "github-actions[bot]"

@@ -84,12 +84,29 @@ jobs:
             -v "$PWD:/docs:ro" -v "$PWD/out:/out" \
             pns-sop-pipeline:ci render-all /docs/sop
 
+      # How to download the files correctly, with direct raw links. A GitHub
+      # `/blob/` URL is the HTML viewer page, not the document.
+      - name: Write the download instructions
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_REF: ${{ inputs.ref }}
+        run: |
+          set -euo pipefail
+          bash .github/scripts/write-branch-readme.sh \
+            out "draft-${slug}" \
+            "DRAFT render — not approved" \
+            "These are **unapproved drafts** rendered from branch \`$INPUT_REF\`. They have not been reviewed or merged, and the source of record is the Markdown on \`main\`."
+
+      # Draft artifacts are short-lived by nature: a draft is superseded or
+      # discarded within days. Kept for a week so a reviewer has time to
+      # download it, and no longer.
       - name: Upload the draft documents
         uses: actions/upload-artifact@v4
         with:
           name: sop-draft-${{ env.slug }}
           path: out/
           if-no-files-found: error
+          retention-days: 7
 
       - name: Publish the draft to a draft-* branch
         env:

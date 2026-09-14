@@ -276,6 +276,13 @@ fi
 
 printf '%s\n' "$AFTER" > out/.translated-from
 
+# A README that tells a reader how to download the files correctly. A GitHub
+# `/blob/` URL is the HTML viewer page, not the document.
+bash "$(dirname "$0")/write-branch-readme.sh" \
+  out translated \
+  "English renderings of the SOP documents" \
+  "The English Word and PDF renderings, generated from the Indonesian Markdown sources in \`sop/\` on \`main\` and validated deterministically. **The Indonesian document is the source of record**; where the two differ, the Indonesian one is in force."
+
 if [ "${#HELD[@]}" -gt 0 ]; then
   {
     echo "# Held documents"

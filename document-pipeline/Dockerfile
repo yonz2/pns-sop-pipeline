@@ -111,13 +111,21 @@ WORKDIR /opt/document-pipeline
 
 # puppeteer must NOT download its own browser: the image uses the system
 # Chromium installed above. Both variable names are set because the name
-# changed across puppeteer versions. Setting this BEFORE `npm install` also
-# keeps the install from fetching a ~150 MB browser that would never be used.
+# changed across puppeteer versions. Setting this BEFORE the install also
+# keeps it from fetching a ~150 MB browser that would never be used.
 ENV PUPPETEER_SKIP_DOWNLOAD=true \
     PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
-COPY package.json ./
-RUN npm install --omit=dev
+# package-lock.json is copied and `npm ci` is used, not `npm install`. With
+# `npm install` and `^` ranges in package.json, the same commit builds with
+# whatever version of the docx library is newest on the day it is built — so two
+# renders of the same document can differ, and a new upstream release can change
+# the output without any change in this repository. `npm ci` installs exactly
+# the locked versions and fails if package.json and the lock disagree, which is
+# the behaviour a document pipeline wants: reproducible output, and a loud
+# failure rather than a silent drift.
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
 
 # --- python tooling ----------------------------------------------------
 # requests: LLM endpoint calls from translate.py. Ubuntu 26.04 enforces PEP 668

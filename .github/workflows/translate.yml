@@ -134,6 +134,7 @@ jobs:
             out/*.en.pdf
             out/HELD.md
           if-no-files-found: warn
+          retention-days: ${{ vars.ARTIFACT_RETENTION_DAYS || 14 }}
 
       - name: Summarise
         if: always()

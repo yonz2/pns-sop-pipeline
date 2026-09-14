@@ -1,0 +1,90 @@
+name: Retention
+
+# Housekeeping for generated content, so the repository and its Actions storage
+# do not grow without limit. See docs/retention.md for the policy and the
+# reasoning.
+#
+# Runs weekly, and can be run by hand after an incident (for instance, after a
+# burst of draft renders).
+
+on:
+  schedule:
+    # 03:17 UTC on Mondays. An off-the-hour time avoids the busy top of the hour.
+    - cron: "17 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  prune:
+    runs-on: ubuntu-latest
+    env:
+      # Both are repository variables, so a maintainer can tune them without
+      # editing this file. The fallbacks are the documented defaults.
+      #   draft-*     disposable by design; a week is generous for circulating one
+      #   translated  generated content; rebuildable, and stale is worse than absent
+      DRAFT_DAYS: ${{ vars.DRAFT_RETENTION_DAYS || 7 }}
+      TRANSLATED_DAYS: ${{ vars.TRANSLATED_RETENTION_DAYS || 30 }}
+    steps:
+      - name: Check out the retention policy and script
+        uses: actions/checkout@v4
+
+      - name: Prune generated branches
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          bash .github/scripts/prune-generated.sh "$DRAFT_DAYS" "$TRANSLATED_DAYS"
+
+      # Document artifacts are bounded by `retention-days` at upload, so they
+      # take care of themselves. The Docker build cache is the exception: the
+      # build action creates a `…dockerbuild` artifact implicitly, with the
+      # default retention, and it is worthless after a few days. This deletes
+      # build-cache artifacts older than a week.
+      - name: Delete stale build-cache artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CACHE_DAYS: 7
+        run: |
+          set -euo pipefail
+          now="$(date -u +%s)"
+          cutoff=$(( now - CACHE_DAYS * 86400 ))
+          deleted=0
+
+          while IFS=$'\t' read -r id name created; do
+            [ -n "$id" ] || continue
+            case "$name" in
+              *dockerbuild*) ;;
+              *) continue ;;
+            esac
+            c_ts="$(date -u -d "$created" +%s 2>/dev/null || echo 0)"
+            if [ "$c_ts" -gt 0 ] && [ "$c_ts" -lt "$cutoff" ]; then
+              gh api -X DELETE "repos/$GITHUB_REPOSITORY/actions/artifacts/$id" >/dev/null
+              echo "deleted stale build cache: $name ($id), created $created"
+              deleted=$((deleted + 1))
+            fi
+          done < <(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts?per_page=100" \
+                     --jq '.artifacts[] | [.id, .name, .created_at] | @tsv' 2>/dev/null || true)
+
+          echo "deleted $deleted stale build-cache artifact(s)"
+
+      - name: Report
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          {
+            echo "## Retention pass"
+            echo
+            echo "| Setting | Value |"
+            echo "|---|---|"
+            echo "| Draft branch retention | ${DRAFT_DAYS} days |"
+            echo "| Translated branch retention | ${TRANSLATED_DAYS} days |"
+            echo "| Artifact retention | \${{ vars.ARTIFACT_RETENTION_DAYS || 14 }} days |"
+            echo
+            echo "The \`rendered\` branch is never deleted automatically: it is the"
+            echo "deliverable. If it is behind \`main\`, the render workflow failed,"
+            echo "and this run emits a warning rather than cleaning it up."
+          } >> "$GITHUB_STEP_SUMMARY"

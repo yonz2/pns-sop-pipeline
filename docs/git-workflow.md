@@ -52,6 +52,21 @@ table is two changes and should be two branches.
 Branches live for hours or days, never weeks. A long-lived branch is a branch that has
 stopped being a change and started being a fork.
 
+### Generated branches
+
+Three names are reserved for the pipeline. They are **outputs**, not places to work, and
+are described fully in §6 and §12:
+
+| Branch | What it holds | Grows? |
+|---|---|---|
+| `rendered` | the Indonesian documents, the deliverable | no — force-pushed snapshot |
+| `translated` | the English renderings | no — force-pushed snapshot |
+| `draft-*` | one draft render each | **yes** — one branch per run |
+
+The first two are overwritten on every run, so they never grow. `draft-*` branches
+accumulate, and **retention** (§12) reaps them. No automation ever deletes a topic branch,
+because it may hold unreviewed work.
+
 ---
 
 ## 3. Getting the repository and the editor
@@ -475,3 +490,72 @@ it never substitutes for the review in §7.
 The same list is declared in `.vscode/extensions.json`, so on first opening the repository
 VS Code offers to install them. Accepting is the whole setup. If the file is absent, install
 them by **Extensions** (`Ctrl+Shift+X`) and the ID above.
+
+---
+
+## 12. Retention — how long generated content is kept
+
+The pipeline produces content on every run. Left alone, some of it accumulates. This
+section states what is bounded, how, and why. **The full policy and its reasoning are in
+`docs/retention.md`**; this is the summary a workflow participant needs.
+
+### What grows, and what does not
+
+- **`rendered` and `translated` do not grow.** Both are force-pushed snapshots — one
+  commit, replaced each run. A decade of renders leaves them the same size as today.
+- **`draft-*` branches do grow.** One new branch per draft render, each a complete copy of
+  the document set.
+- **Workflow artifacts do grow.** One set per run per workflow; GitHub's default is a
+  **90-day** retention, far longer than a downloaded convenience warrants. (At the time of
+  writing, 28 had accumulated within days — including an implicit Docker build-cache
+  artifact per build.)
+
+### The policy
+
+| Asset | Kept | Why |
+|---|---|---|
+| `rendered` branch | **never deleted** | It is the deliverable. Stale means the pipeline broke — fix it, do not delete the evidence |
+| `translated` branch | until **30 days** behind `main` | Generated and rebuildable, and **stale is worse than absent** (see below) |
+| `draft-*` branches | **7 days** | Disposable by design (see §6, the draft exception) |
+| Workflow artifacts | **14 days** | A convenience; the branch always holds the current set |
+| Draft-run artifacts | **7 days** | A draft is superseded within days |
+| Docker build cache | **7 days** | Speeds builds; worthless after a week |
+| Topic branches | **never deleted by automation** | May hold unreviewed work |
+
+The three numeric limits are **repository variables** — `DRAFT_RETENTION_DAYS`,
+`TRANSLATED_RETENTION_DAYS`, `ARTIFACT_RETENTION_DAYS` (*Settings → Secrets and variables →
+Actions → Variables*) — so a maintainer tunes them without editing a workflow.
+
+### Why `translated` is treated differently from `draft-*`
+
+A `draft-*` branch is removed purely on **age**. The `translated` branch is removed on
+**staleness**: only when it has been behind `main` longer than the threshold. That
+distinction is deliberate, because the English rendering has a failure mode the Indonesian
+does not:
+
+> **A stale English rendering is more dangerous than no English rendering.** It states, in
+> English, that it is the current procedure — while the Indonesian source of record has
+> moved on. A reader who cannot read the Indonesian cannot tell. So `translated` is deleted
+> when it can no longer be trusted, and regenerated on the next run. It is never deleted
+> while current.
+
+`rendered` is the opposite case and is **never deleted.** If it is behind `main`, the render
+workflow failed; the retention run emits a warning and leaves it alone.
+
+### Running retention
+
+The workflow `.github/workflows/retention.yml` runs **weekly** (Mondays, 03:17 UTC) and can
+be started by hand from **Actions → Retention → Run workflow** — worth doing after a burst
+of draft renders rather than waiting for Monday. It is always safe to run, and the script
+supports a report-only mode:
+
+```bash
+DRY_RUN=true GITHUB_REPOSITORY=<owner>/<repo> \
+  bash .github/scripts/prune-generated.sh 7 30
+```
+
+### What retention does *not* touch
+
+The Markdown sources on `main`, the `rendered` branch, and the history of `main` are outside
+this policy entirely. **Nothing load-bearing is ever deleted** — only content that is
+regenerable from those, and only once it has served its purpose.

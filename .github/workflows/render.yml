@@ -64,12 +64,18 @@ jobs:
       # The artifacts and the `rendered` branch now hold the *complete* current
       # set, assembled by the overlay, even though only the changed procedures
       # were freshly rendered.
+      # Artifacts are conveniences, not the archive: the `rendered` branch
+      # always holds the current set. They are therefore kept only briefly, so
+      # that repeated renders do not fill the repository's Actions storage.
+      # Override the period with the repository variable ARTIFACT_RETENTION_DAYS
+      # (Settings -> Secrets and variables -> Actions -> Variables).
       - name: Upload the rendered documents
         uses: actions/upload-artifact@v4
         with:
           name: sop-rendered
           path: out/*.docx
           if-no-files-found: error
+          retention-days: ${{ vars.ARTIFACT_RETENTION_DAYS || 14 }}
 
       - name: Upload the rendered PDFs
         uses: actions/upload-artifact@v4
@@ -77,3 +83,4 @@ jobs:
           name: sop-rendered-pdf
           path: out/*.pdf
           if-no-files-found: error
+          retention-days: ${{ vars.ARTIFACT_RETENTION_DAYS || 14 }}

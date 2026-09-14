@@ -17,6 +17,8 @@ produced here is the document the PLP already recognise, and the one that earns
 | `sop/` | **The documents.** One Markdown file per procedure, with YAML front matter carrying its metadata (number, revision, owner, review interval). This is the source of record |
 | `document-pipeline/` | The renderer: Markdown + front matter → `.docx` (the department's form) → `.pdf`. Also the deterministic translation and validation tooling |
 | `out/` | Rendered output. Generated, never committed |
+| `docs/git-workflow.md` | How a change becomes a reviewed, rendered document |
+| `docs/retention.md` | How long generated content is kept, and why |
 
 `sop/` holds the Indonesian procedures. **Indonesian is the source of record**; an
 English rendering is generated from it, never authored, under the rules in
@@ -137,6 +139,23 @@ Three properties are deliberate and worth knowing before changing anything:
   and skips; the Indonesian source of record is unaffected. Run the workflow manually with
   **force full** or **dry run** as needed (`dry_run` exercises the orchestration without a
   model, for testing).
+
+## Downloading the rendered documents
+
+**Do not use the URL in the browser's address bar.** A GitHub URL containing `/blob/` is
+the HTML viewer page, not the document; saving it gives an `.htm` file, and Word reports
+the document as unreadable.
+
+Open the **`rendered`** branch instead. It carries a `README.md` with a direct download
+link for every document, plus the two other ways to get them. There is a matching README
+on `translated` and on each `draft-*` branch.
+
+## Retention
+
+Generated content is bounded so the repository does not grow without limit: draft branches
+are reaped after a week, artifacts are kept for a fortnight, and stale English renderings
+are removed. The reasoning — and why `translated` is treated differently from `rendered` —
+is in `docs/retention.md` and summarised in `docs/git-workflow.md` §12.
 
 ## The full command set
 
