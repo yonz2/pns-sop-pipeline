@@ -52,11 +52,21 @@ function splitSections(body) {
 }
 
 // Render a ```mermaid ... ``` block to a PNG via mermaid-cli, return the path.
+//
+// The puppeteer config is passed explicitly. mermaid-cli otherwise defaults to
+// `headless: "shell"`, which launches `chrome-headless-shell` — a separate
+// build from the full Chromium the image installs — and fails with "Could not
+// find chrome-headless-shell". The config also adds --no-sandbox, required when
+// the browser runs as root inside a container.
 function renderMermaid(code, workDir, index) {
   const mmd = path.join(workDir, `_mermaid-${index}.mmd`);
   const png = path.join(workDir, `_mermaid-${index}.png`);
   fs.writeFileSync(mmd, code);
-  execFileSync('mmdc', ['-i', mmd, '-o', png, '-b', 'white'], { stdio: 'inherit' });
+  const args = ['-i', mmd, '-o', png, '-b', 'white'];
+  const config = process.env.PUPPETEER_CONFIG_FILE
+    || path.join(__dirname, 'puppeteer-config.json');
+  if (fs.existsSync(config)) args.push('-p', config);
+  execFileSync('mmdc', args, { stdio: 'inherit' });
   return png;
 }
 
