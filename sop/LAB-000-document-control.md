@@ -10,9 +10,9 @@ revisi: 0
 tanggal_terbit: "[[PNS: tanggal terbit]]"
 tinjauan_berikutnya: "[[PNS: dua tahun setelah tanggal terbit]]"
 pemilik: Kepala Laboratorium
-dibuat_oleh: "[[PNS: nama, jabatan]]"
-diperiksa_oleh: "[[PNS: nama, jabatan]]"
-disetujui_oleh: "[[PNS: nama, jabatan]]"
+dibuat_oleh: "Suko Tyas Pernanda, Asisten Ahli"
+diperiksa_oleh: "Karyanto, PLP"
+disetujui_oleh: "Slamet Handoko, Kepala Laboratorium"
 status: Draf
 lang: id
 role: draft-scaffold
@@ -40,24 +40,22 @@ didaftar.
 
 ## 2. Ruang Lingkup / Scope
 
-`[A]` Seluruh prosedur pengoperasian, pemeliharaan dan pengelolaan untuk laboratorium pada program
+Seluruh prosedur pengoperasian, pemeliharaan dan pengelolaan untuk laboratorium pada program
 studi Teknologi Rekayasa Komputer — Laboratorium Informatika, Laboratorium Komputer selama masih
-digunakan untuk praktikum IoT, serta laboratorium IoT khusus setelah beroperasi.
+digunakan untuk praktikum IoT, serta laboratorium IoT khusus setelah beroperasi, dan Praktikum AR/VR.
 
 **Koreksi:**
 `_________________________________________________________________________________`
 
 ## 3. Referensi / References
 
-- `[C]` Formulir *Rekaman Kegiatan Pengelolaan Laboratorium*
-- `[C]` Kode Butir Kegiatan PLP `II.A.12.b` (pengoperasian) dan `II.A.13.a.b` (pemeliharaan)
-- `[?]` `[[PNS: apakah SOP-02.002-BPTI-2020 sudah mengatur pengendalian dokumen di tingkat
-  institusi?]]` Bila sudah, prosedur ini merujuk kepadanya dan tidak mengulanginya.
+- Formulir *Rekaman Kegiatan Pengelolaan Laboratorium*
+- Kode Butir Kegiatan PLP `II.A.12.b` (pengoperasian) dan `II.A.13.a.b` (pemeliharaan)
 
 ## 4. Pemilik dokumen / Document owner
 
-**Kepala Laboratorium.** `[C]` Untuk Laboratorium Informatika, jabatan ini dipegang oleh
-**Handoko, S.Kom., M.Kom**, yang selama ini telah mengesahkan prosedur yang berlaku.
+**Kepala Laboratorium.** Untuk Laboratorium Informatika, jabatan ini dipegang oleh
+**Slamet Handoko, S.Kom., M.Kom**, yang selama ini telah mengesahkan prosedur yang berlaku.
 
 ## 5. Tinjauan / Review
 
@@ -65,17 +63,15 @@ Setiap dua tahun, dan segera setelah terjadi perubahan pada rantai pengesahan.
 
 ## 6. Prosedur / Procedure
 
-> `[C]` Digambarkan sebagai diagram alir. Lima langkah, satu titik keputusan.
+> Digambarkan sebagai diagram alir. Lima langkah, satu titik keputusan.
 
 **1. Mengajukan.** Penyusun membuka prosedur baru, atau revisi atas prosedur yang sudah ada.
 Prosedur tersebut dicatat dalam daftar induk dengan nomor berikutnya dalam keluarganya dan berstatus
 *Draf*.
 
-**2. Memeriksa.** PLP kedua memeriksa prosedur **terhadap peralatan atau kegiatan sebagaimana
-benar-benar dilaksanakan** — bukan terhadap versi dokumen sebelumnya. `[A]` Pembedaan inilah yang
-membedakan pemeriksaan dari sekadar mengoreksi ketikan.
+**2. Memeriksa.** PLP kedua memeriksa prosedur **terhadap peralatan atau kegiatan sebagaimana benar-benar dilaksanakan** — bukan terhadap versi dokumen sebelumnya. Pembedaan inilah yang membedakan pemeriksaan dari sekadar mengoreksi ketikan.
 
-**3. Mengesahkan.** Kepala Laboratorium mengesahkan. `[C]` Blok *Dibuat → Diperiksa → Disetujui*
+**3. Mengesahkan.** Kepala Laboratorium mengesahkan. Blok *Dibuat → Diperiksa → Disetujui*
 diisi dengan nama, jabatan dan tanggal. **Rantai ini sudah berjalan dan tidak diubah.**
 
 *Keputusan: disahkan, atau dikembalikan kepada penyusun?* Yang dikembalikan kembali ke langkah 1
@@ -89,7 +85,7 @@ Daftar induk mencatat nomor revisi, tanggal pengesahan dan tanggal tinjauan beri
 berlaku tanpa perubahan — **dan pernyataan itu sendiri dicatat, lengkap dengan tanggal** — atau
 mengajukan revisi pada langkah 1.
 
-> `[A]` **Langkah 5 adalah langkah yang benar-benar bekerja.** Dokumen yang tidak pernah dibuka sejak
+> **Langkah 5 adalah langkah yang benar-benar bekerja.** Dokumen yang tidak pernah dibuka sejak
 > tahun 2020 dan dokumen yang ditinjau tahun lalu lalu dinyatakan masih benar tampak sama persis dari
 > luar. Satu-satunya perbedaan adalah satu baris dalam daftar induk, dan baris itulah yang sebenarnya
 > ditanyakan seorang auditor.
@@ -117,7 +113,7 @@ sepenuhnya; demikian pula satu tabel di dalam repositori yang dijelaskan pada
 | IOT-02 | Pembangunan golden image Raspberry Pi dan pendaftarannya, kedua peran | `II.A.12.b` | 0 | | PLP | | Draf | |
 | *(sepuluh prosedur yang sudah ada masuk di sini pada revisinya masing-masing)* | | | | | | | | |
 
-> **Sepuluh dokumen yang sudah ada dimasukkan apa adanya.** `[C]` Dokumen-dokumen itu
+> **Sepuluh dokumen yang sudah ada dimasukkan apa adanya.** Dokumen-dokumen itu
 > mempertahankan revisi dan isinya; yang bertambah hanyalah satu baris, seorang pemilik dan tanggal
 > tinjauan. **Tidak ada yang diketik ulang** — mengetik ulang dokumen yang sudah disahkan adalah cara
 > kesalahan masuk ke dalam sebuah kumpulan dokumen.
@@ -132,7 +128,7 @@ templat, `document-pipeline/templates/SOP-Pengoperasian-Template.dotx`, sehingga
 membawa blok yang sama pada tempat yang sama dan tidak ada dokumen yang dapat menyimpang darinya.
 Tidak ada yang ditandatangani di dalam berkas ini.
 
-`[C]` Rantai yang selama ini berlaku di jurusan, tanpa perubahan.
+ Rantai yang selama ini berlaku di jurusan, tanpa perubahan.
 
 > **Rantai mana yang dicetak pada formulir belum ditetapkan, dan bukan penasihat yang menetapkannya.**
 > Dalam kumpulan dokumen terdapat dua. Prosedur peminjaman tahun 2020 menandatangani
@@ -159,6 +155,6 @@ lokasi bersama yang dapat dibaca seluruh jurusan, atau repositori dalam
 Docs-as-Code bermuara** — daftar induk tetap diperlukan dalam kedua keadaan, dan itulah inti
 pertanyaan terbuka nomor 5 dalam dokumen tersebut.
 
-`[A]` **Jangan membuat daftar induk menjadi rumit.** Sembilan kolom, satu baris per prosedur. Setiap
+**Jangan membuat daftar induk menjadi rumit.** Sembilan kolom, satu baris per prosedur. Setiap
 kolom tambahan adalah satu ruas yang harus dipelihara seseorang, dan daftar induk yang tidak
 dipelihara lebih buruk daripada tidak ada sama sekali, karena ia keliru dengan penuh keyakinan.
