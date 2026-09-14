@@ -65,11 +65,16 @@ jobs:
       # set, assembled by the overlay, even though only the changed procedures
       # were freshly rendered.
       # Artifacts are conveniences, not the archive: the `rendered` branch
-      # always holds the current set. They are therefore kept only briefly, so
-      # that repeated renders do not fill the repository's Actions storage.
+      # always holds the current set, and it is published before this step. So
+      # these uploads are best-effort: `continue-on-error` keeps a full artifact
+      # quota from failing a render that already succeeded and was already
+      # published. The workflow reports the failure, and the documents are still
+      # on the branch.
+      #
       # Override the period with the repository variable ARTIFACT_RETENTION_DAYS
       # (Settings -> Secrets and variables -> Actions -> Variables).
       - name: Upload the rendered documents
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: sop-rendered
@@ -78,6 +83,7 @@ jobs:
           retention-days: ${{ vars.ARTIFACT_RETENTION_DAYS || 14 }}
 
       - name: Upload the rendered PDFs
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: sop-rendered-pdf

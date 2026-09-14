@@ -99,8 +99,10 @@ jobs:
 
       # Draft artifacts are short-lived by nature: a draft is superseded or
       # discarded within days. Kept for a week so a reviewer has time to
-      # download it, and no longer.
+      # download it, and no longer. Best-effort, because the `draft-*` branch
+      # already holds the output and a full quota must not fail the render.
       - name: Upload the draft documents
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: sop-draft-${{ env.slug }}

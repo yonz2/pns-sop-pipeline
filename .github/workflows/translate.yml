@@ -124,7 +124,10 @@ jobs:
         if: ${{ steps.model.outputs.ready == 'true' || inputs.dry_run == true }}
         run: ls -l out || true
 
+      # Best-effort: the `translated` branch already holds the output, so a full
+      # artifact quota must not fail an otherwise successful translation.
       - name: Upload the English renderings
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         if: ${{ steps.model.outputs.ready == 'true' || inputs.dry_run == true }}
         with:
