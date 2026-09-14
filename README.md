@@ -22,6 +22,28 @@ produced here is the document the PLP already recognise, and the one that earns
 English rendering is generated from it, never authored, under the rules in
 `document-pipeline/README.md`.
 
+## Getting started
+
+1. **Install Git and VS Code**, then clone the repository and open the folder in VS Code.
+   On first open, accept the recommended extensions.
+
+   ```bash
+   git clone https://github.com/yonz2/pns-sop-pipeline.git
+   ```
+
+   **VS Code is the recommended editor.** The documents are plain Markdown, so any editor
+   works, but the Markdown, YAML and GitHub extensions make editing the sources and opening
+   pull requests safe and straightforward. Pushing needs write access or a fork; reading
+   needs neither.
+
+2. **Optionally, render locally.** Docker is the only prerequisite. Open the repository as
+   a dev container (**Reopen in Container**) and render in the integrated terminal, or
+   build and run the image directly (see *Build the renderer* and *Editing in a dev
+   container*).
+
+3. **Make a change** on a branch and open a pull request, following
+   `docs/git-workflow.md` — §3 covers getting the repository, §5 the day-to-day steps.
+
 ## Prerequisites
 
 - **Docker** — the only requirement to render. Node, LibreOffice, Mermaid and the
@@ -56,7 +78,7 @@ docker run --rm \
 A rendered `.docx` opens in Word as the department's form; the `.pdf` is produced from
 it by LibreOffice headless.
 
-## Working on the documents
+### Working on the documents
 
 Git is the document management system:
 
