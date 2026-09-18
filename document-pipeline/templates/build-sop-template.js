@@ -394,10 +394,17 @@ const doc = new Document({
   }],
 });
 
-Packer.toBuffer(doc).then((buf) => {
-  fs.writeFileSync('SOP-Pengoperasian-Template.docx', buf);
-  console.log('written: SOP-Pengoperasian-Template.docx', buf.length, 'bytes');
-});
+// Only when run directly (`node templates/build-sop-template.js`). render.js
+// requires this file for the form's building blocks alone; without this guard
+// the require wrote a 131 KB template into the current working directory as a
+// side-effect of every render -- landing in the repository root in the dev
+// container, and rebuilding the whole template once per document in render-all.
+if (require.main === module) {
+  Packer.toBuffer(doc).then((buf) => {
+    fs.writeFileSync('SOP-Pengoperasian-Template.docx', buf);
+    console.log('written: SOP-Pengoperasian-Template.docx', buf.length, 'bytes');
+  });
+}
 
 // --------------------------------------------------------------------------
 // Exports for the renderer (render.js). The renderer fills the same form with

@@ -82,7 +82,7 @@ jobs:
             echo "|---|---|"
             echo "| Draft branch retention | ${DRAFT_DAYS} days |"
             echo "| Translated branch retention | ${TRANSLATED_DAYS} days |"
-            echo "| Artifact retention | \${{ vars.ARTIFACT_RETENTION_DAYS || 14 }} days |"
+            echo "| Artifact retention | ${{ vars.ARTIFACT_RETENTION_DAYS || 14 }} days |"
             echo
             echo "The \`rendered\` branch is never deleted automatically: it is the"
             echo "deliverable. If it is behind \`main\`, the render workflow failed,"
