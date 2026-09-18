@@ -197,13 +197,31 @@ def check_10_code_blocks(src, out):
 
 
 def check_11_flags(out):
-    m = re.search(r"FLAGS\s*:\s*(\[[\s\S]*\])", out)
-    if not m:
-        return "check 11: FLAGS block missing"
-    try:
-        json.loads(m.group(1))
-    except json.JSONDecodeError as e:
-        return "check 11: FLAGS is not valid JSON: %s" % e
+    """The model reported what it was unsure of, and the report is well formed.
+
+    translate.py parses the FLAGS array out of the reply and stores it in the
+    front matter as `translation_flags`. It is deliberately NOT left in the
+    body: the body is rendered into the department's form, and a JSON array
+    printed inside a signed procedure would be read as part of the procedure.
+
+    An absent key is a failure, not an empty result. translate.py omits the key
+    entirely when the model returned no array, so "nothing to flag" (an empty
+    list, which is valid and common) stays distinguishable from "did not follow
+    the output contract".
+    """
+    front, _ = split_front_matter(out)
+    if "translation_flags" not in front:
+        return ("check 11: FLAGS block missing — the model returned no FLAGS array, "
+                "so it is not known whether it had anything to flag")
+    flags = front["translation_flags"]
+    if not isinstance(flags, list):
+        return "check 11: translation_flags is not a list (got %s)" % type(flags).__name__
+    for i, item in enumerate(flags):
+        if not isinstance(item, dict):
+            return "check 11: translation_flags[%d] is not an object" % i
+        missing = [k for k in ("location", "type", "source_text", "note") if k not in item]
+        if missing:
+            return "check 11: translation_flags[%d] is missing %s" % (i, ", ".join(missing))
     return None
 
 
@@ -233,12 +251,29 @@ def main():
         check_9_length, check_10_code_blocks, check_11_flags,
     ]
 
+    # The checks compare the DOCUMENTS, not the files.
+    #
+    # translate.py prepends a provenance block (R1b section 8) that the source
+    # cannot contain: a content hash, a generation timestamp, the model name and
+    # the source document id. Comparing raw file text therefore charged the
+    # translation for metadata the pipeline itself had just added -- check 4 saw
+    # an extra LAB-ACC in `source_document`, and check 6 saw every digit of the
+    # sha256 hash. A byte-identical translation failed both, so no output could
+    # ever pass.
+    #
+    # check 7 is the check that validates front matter, and it does its own
+    # splitting; it is the only one that gets the whole file.
+    src_body = split_front_matter(src)[1]
+    out_body = split_front_matter(out)[1]
+
     failures = []
     for fn in checks:
         if fn.__name__ == "check_11_flags":
-            err = fn(out)
-        else:
+            err = fn(out)          # reads translation_flags from the front matter
+        elif fn.__name__ == "check_7_front_matter":
             err = fn(src, out)
+        else:
+            err = fn(src_body, out_body)
         if err:
             failures.append(err)
 
