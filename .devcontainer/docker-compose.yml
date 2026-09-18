@@ -17,7 +17,11 @@ services:
       - ..:/workspaces/pns-sop-pipeline
 
     # Rendered output lands in the bind-mounted ./out so it survives the
-    # container. DOCS_DIR is only a default; commands name their path.
+    # container. DOCS_DIR is the default `render-all` walks when no path is
+    # given, so it points at sop/ -- the documents -- and not at the repository
+    # root. Pointed at the root, a bare `render-all` also rendered
+    # docs/git-workflow.md and docs/retention.md through the department's
+    # official form, producing project notes dressed as approved procedures.
     environment:
-      DOCS_DIR: /workspaces/pns-sop-pipeline
+      DOCS_DIR: /workspaces/pns-sop-pipeline/sop
       OUT_DIR: /workspaces/pns-sop-pipeline/out
