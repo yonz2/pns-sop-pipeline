@@ -32,6 +32,7 @@ import os
 import re
 import sys
 import time
+import urllib.error
 import urllib.request
 
 PROMPT = """ROLE
@@ -94,11 +95,18 @@ for procedure steps ("Record the serial number", not "The serial number should b
 recorded"). Do not raise the reading level. Do not introduce vocabulary more formal
 than the source. Do not expand an abbreviation the source does not expand.
 
-OUTPUT
-Return exactly two blocks and nothing else.
+OUTPUT FORMAT — follow it exactly; anything else is rejected automatically.
 
-  1. A block containing the translated Markdown, complete, with no commentary.
-  2. A block containing FLAGS as JSON: a list of objects, each with
+Return the translated Markdown FIRST, on its own, with no commentary and with NO code
+fence wrapped around the document as a whole. (Code fences that are part of the document
+are copied verbatim, of course.)
+
+Then, after the document, on a line of its own, the literal word FLAGS, a colon, and a
+JSON array — like this, and with nothing after it:
+
+FLAGS: []
+
+  The array is a list of objects, each with
      {"location": "<heading or line reference>",
       "type": "ambiguous_term" | "unclear_source" | "possible_error_in_source" |
               "untranslatable" | "instruction_like_text" | "other",
@@ -135,6 +143,18 @@ def protected_tokens_text(glossary_path):
         lines.append("  - " + lit)
     for p in patterns:
         lines.append("  - (pattern) " + p)
+    # KNOWN CONTRADICTION, left in place deliberately. This line instructs the
+    # model to substitute the agreed English rendering; validate.py check 5 then
+    # holds the document for containing an English rendering that is not in the
+    # source, and check 4 holds it for no longer containing the Indonesian. The
+    # two cannot both be satisfied.
+    #
+    # It is not patched here because the obvious patch -- telling the model to
+    # copy glossary terms verbatim -- makes the model copy the WHOLE document
+    # and pass all eleven checks without translating anything, which is worse:
+    # a silent pass instead of a loud failure. Resolving it means deciding what
+    # the closed vocabulary is for, and narrowing check 4 to match.
+    # See docs/translation-pipeline-findings.md section 3.
     lines.append("GLOSSARY (use the agreed English rendering exactly):")
     for t in _terms(glossary_path):
         if t.get("id") and t.get("en") and not str(t["en"]).startswith("[["):
@@ -158,6 +178,65 @@ def split_front_matter(src):
     except Exception:
         front = {}
     return front, src[m.end():]
+
+
+# --------------------------------------------------------------------------
+# Parsing the model's reply
+#
+# The reply is two things concatenated: the translated document, then the FLAGS
+# array. They have to be separated before anything is written, because they go
+# to different places -- the document becomes the body, the flags go into the
+# front matter. Left inline, "FLAGS: [...]" would be rendered into the Word
+# document as though it were part of the procedure.
+# --------------------------------------------------------------------------
+
+def strip_outer_fence(text):
+    """Remove a code fence wrapped around the WHOLE reply.
+
+    Models intermittently answer with the document inside ```markdown ... ```;
+    observed from deepseek-v4.1-flash on one reply in three. Written out
+    verbatim it makes the entire procedure a single code block, so validate.py
+    check 10 sees a code block the source does not have. Only a fence that
+    opens on the first line and closes on the last is removed, so fences that
+    belong to the document are untouched.
+    """
+    t = text.strip()
+    m = re.match(r"^```[a-zA-Z0-9_-]*[ \t]*\n([\s\S]*?)\n?```$", t)
+    return m.group(1) if m else text
+
+
+def split_flags(text):
+    """Split a reply into (document, flags), flags being a list or None.
+
+    None means the model returned no FLAGS array at all. That is a failure of
+    the output contract, not an absence of flags: "nothing to flag" and "did
+    not answer" must not look alike, because the FLAGS block is how the model
+    reports what it was unsure of. validate.py check 11 holds the document.
+    """
+    marker = None
+    for marker in re.finditer(r"(?m)^[ \t]*\**FLAGS\**[ \t]*:[ \t]*", text):
+        pass                    # the LAST marker wins; earlier ones are prose
+    if marker is None:
+        return text, None
+
+    head, rest = text[:marker.start()].rstrip(), text[marker.end():]
+
+    # The array is sometimes wrapped in its own fence (```json [ ... ] ```).
+    fence = re.match(r"[ \t]*\n?[ \t]*```[a-zA-Z0-9_-]*[ \t]*\n", rest)
+    if fence:
+        rest = rest[fence.end():]
+
+    start = rest.find("[")
+    if start == -1:
+        return head, None
+    try:
+        # raw_decode stops at the end of the array, so a trailing closing fence
+        # does not break the parse and a nested array inside a flag object does
+        # not end it early.
+        flags, _ = json.JSONDecoder().raw_decode(rest[start:])
+    except ValueError:
+        return head, None
+    return (head, flags) if isinstance(flags, list) else (head, None)
 
 
 def content_hash(text):
@@ -195,9 +274,74 @@ def call_model(prompt, glossary_path, source_text):
 
     url = endpoint.rstrip("/") + "/chat/completions"
     req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"), headers=headers, method="POST")
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        data = json.loads(resp.read().decode("utf-8"))
-    return data["choices"][0]["message"]["content"]
+    # A misconfigured endpoint or model is the most likely failure here, and it
+    # used to surface as a bare urllib traceback ending in "HTTP Error 404: Not
+    # Found" -- which says nothing about WHICH of the two is wrong. The endpoint
+    # and model are configuration values set by whoever runs the pipeline
+    # (R3 section 8.1), so the error names them.
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        detail = ""
+        try:
+            detail = e.read().decode("utf-8", "replace")[:400]
+        except Exception:
+            pass
+        sys.stderr.write("the model endpoint returned HTTP %s (%s).\n" % (e.code, e.reason))
+        sys.stderr.write("  LLM_ENDPOINT = %s\n  LLM_MODEL    = %s\n" % (endpoint, model))
+        if e.code == 404:
+            sys.stderr.write(
+                "  404 usually means the MODEL NAME is not served by this endpoint.\n"
+                "  Through a local Ollama, a cloud model needs its cloud suffix -- for\n"
+                "  example 'gpt-oss:120b-cloud', not 'gpt-oss:120b'. Calling ollama.com\n"
+                "  directly, it is the bare name. `curl $LLM_ENDPOINT/models` lists them.\n")
+        elif e.code in (401, 403):
+            sys.stderr.write(
+                "  %s means the endpoint wants credentials. Set LLM_API_KEY. A local\n"
+                "  Ollama needs none; ollama.com called directly does.\n" % e.code)
+        if detail:
+            sys.stderr.write("  response: %s\n" % detail)
+        sys.exit(3)
+    except urllib.error.URLError as e:
+        sys.stderr.write("cannot reach the model endpoint %s: %s\n" % (endpoint, e.reason))
+        sys.stderr.write(
+            "  From inside a container, 'localhost' is the container. Use\n"
+            "  host.docker.internal to reach a model runner on the host.\n")
+        sys.exit(3)
+
+    choice = data["choices"][0]
+    content = choice.get("message", {}).get("content") or ""
+    finish = choice.get("finish_reason")
+    usage = data.get("usage") or {}
+
+    # An empty or truncated completion is a MODEL failure, not a translation to
+    # be put through the checks. Writing one out anyway produced a TWO-CHARACTER
+    # document that then failed seven checks at once -- output which describes
+    # the symptom accurately and hides the cause completely.
+    #
+    # This is not hypothetical. A reasoning model can spend its entire budget in
+    # the `reasoning` field and return no content at all: observed here on two
+    # of four full-document runs with deepseek-v4.1-flash, both of them the slow
+    # ones (835s and ~13min), while the fast runs returned a complete document.
+    # Fail loudly at the step that actually went wrong.
+    if finish and finish != "stop":
+        sys.stderr.write(
+            "the model stopped for the reason %r rather than finishing.\n"
+            "  completion_tokens=%s  content=%d chars\n"
+            "  'length' means the reply hit the token limit -- a reasoning model can\n"
+            "  exhaust it before emitting any document.\n"
+            % (finish, usage.get("completion_tokens", "?"), len(content)))
+        sys.exit(3)
+    if not content.strip():
+        sys.stderr.write(
+            "the model returned an EMPTY completion (finish_reason=%r, "
+            "completion_tokens=%s).\n"
+            "  Nothing was translated. This is a model failure, not a translation\n"
+            "  that failed validation, so no document is written.\n"
+            % (finish, usage.get("completion_tokens", "?")))
+        sys.exit(3)
+    return content
 
 
 def main():
@@ -210,7 +354,9 @@ def main():
     src = open(input_path, "r", encoding="utf-8").read()
     front, body = split_front_matter(src)
 
-    translated = call_model(PROMPT, glossary_path, body)
+    reply = call_model(PROMPT, glossary_path, body)
+    translated, flags = split_flags(strip_outer_fence(reply))
+    translated = strip_outer_fence(translated).strip() + "\n"
 
     # Provenance front matter (R1b section 8).
     source_id = front.get("sop_id", os.path.basename(input_path))
@@ -228,6 +374,13 @@ def main():
         "reviewed_by": os.environ.get("REVIEWED_BY", ""),
         "review_date": os.environ.get("REVIEW_DATE", ""),
     }
+    # The flags live in the front matter, never in the body: the body is
+    # rendered into the department's form, and a JSON array printed inside a
+    # signed procedure would be read as part of the procedure. The key is
+    # omitted entirely when the model returned no array, so that check 11 can
+    # tell "nothing to flag" from "did not answer".
+    if flags is not None:
+        provenance["translation_flags"] = flags
     # The translation keeps the source document's identity and form metadata,
     # with the provenance overlaid on top. Two things depend on this:
     #   * validate.py check 7 requires sop_id, kode_kegiatan, angka_kredit,
