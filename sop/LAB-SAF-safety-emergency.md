@@ -23,7 +23,7 @@ source_of_record: id
 
 > **Ini adalah kerangka, bukan dokumen.** Naskah ini disusun dalam bahasa Inggris oleh penasihat dari
 > luar, kemudian dialihbahasakan ke bahasa Indonesia agar dapat langsung dikoreksi dan ditulis ulang
-> oleh jurusan. **Tidak ada yang menandatangani berkas ini.** Versi bahasa Indonesia adalah
+> oleh jurusan.Tidak ada yang menandatangani berkas ini. Versi bahasa Indonesia adalah
 > dokumennya; lihat `README.md` bagian 3.
 >
 > `[C]` dikonfirmasi · `[A]` asumsi, koreksi atau coret · `[?]` sudah ditanyakan, belum dijawab ·
