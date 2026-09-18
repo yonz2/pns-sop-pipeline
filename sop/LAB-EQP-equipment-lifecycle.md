@@ -2,7 +2,7 @@
 sop_id: LAB-EQP
 title: Siklus hidup peralatan — dari pengadaan sampai penghapusan
 title_en: Equipment lifecycle
-kelas: manajemen          # prosedur pengelolaan laboratorium
+kelas: manajemen # prosedur pengelolaan laboratorium
 kode_kegiatan: "[[PNS: Kode Butir Kegiatan untuk prosedur pengelolaan laboratorium]]"
 angka_kredit: "[[PNS: Angka Kredit Acuan]]"
 laboratorium: "[[PNS: nama laboratorium]]"
@@ -48,11 +48,6 @@ jaringan.
 
 ## 3. Referensi / References
 
-- `[C]` Prosedur peminjaman dan pengembalian peralatan tanggal 12 Agustus 2020, revisi 0 — **prosedur
-  ini menyerapnya pada isinya yang berlaku sekarang**
-- `[C]` Prosedur pemeliharaan yang sudah ada, yang berlaku bagi barang yang tercatat di sini
-- `[?]` `[[PNS: daftar aset institusi, dan apakah peralatan laboratorium tercantum di dalamnya]]`
-
 ## 4. Pemilik dokumen / Document owner
 
 **PLP** — sebuah jabatan, bukan nama orang, sehingga dokumen ini tetap berlaku ketika terjadi
@@ -65,8 +60,8 @@ pergantian staf.
 
 ## 6. Prosedur / Procedure
 
-> `[C]` **Kedua bentuk digunakan di jurusan ini: diagram alir dengan percabangan *Ya/Tidak*, atau
-> tabel langkah bernomor (*No · Langkah Kerja · Penjelasan*).** Langkah-langkah di bawah adalah isi
+> `[C]` **Kedua bentuk digunakan di jurusan ini: diagram alir dengan percabangan _Ya/Tidak_, atau
+> tabel langkah bernomor (_No · Langkah Kerja · Penjelasan_).** Langkah-langkah di bawah adalah isi
 > yang harus ditunjukkan oleh salah satu bentuk itu, berurutan. Langkah-langkah ini ditulis sebagai
 > prosa di sini semata-mata karena penggambarannya dilakukan setelah langkahnya disepakati, bukan
 > sebelumnya.
@@ -74,8 +69,8 @@ pergantian staf.
 **1. Mencatat pada saat pengadaan.** Yang dicatat: uraian, nomor seri, tanggal, sumber dana, kategori,
 lokasi. `[A]` Dicatat sebelum barang pertama kali digunakan, bukan sesudahnya.
 
-**2. Mengklasifikasi.** `[C]` Jurusan sudah mengklasifikasi peralatan menurut *kategori* — prosedur
-yang berlaku menyebut *peralatan kategori 2*. **Gunakan sistem itu; jangan menciptakan sistem baru.**
+**2. Mengklasifikasi.** `[C]` Jurusan sudah mengklasifikasi peralatan menurut _kategori_ — prosedur
+yang berlaku menyebut _peralatan kategori 2_. **Gunakan sistem itu; jangan menciptakan sistem baru.**
 `[[PNS: definisi kategori 1, 2 dan 3, serta konsekuensi masing-masing]]`
 
 **3. Meminjamkan dan menerima kembali.** `[C]` Prosedur peminjaman tahun 2020 sudah menjelaskan hal
@@ -98,12 +93,12 @@ langkah yang sama sekali belum tercakup dalam kumpulan dokumen.
 
 **Apa yang dihasilkan prosedur ini, dan apa yang akan diminta dalam sebuah tinjauan mutu.**
 
-| Rekaman / Record | Disimpan oleh / Kept by | Di mana / Where | Masa simpan / Retained |
-|---|---|---|---|
-| Daftar peralatan, dengan kategori dan lokasi | PLP | `[[PNS: di mana]]` | Selamanya |
-| Rekaman peminjaman dan pengembalian | PLP | `[[PNS: di mana]]` | `[A]` Satu tahun akademik |
-| Rekaman pemindahan dan penghapusan | Kepala Laboratorium | `[[PNS: di mana]]` | Selamanya |
-| Rekaman verifikasi tahunan | PLP | `[[PNS: di mana]]` | `[A]` Tiga tahun |
+| Rekaman / Record                             | Disimpan oleh / Kept by | Di mana / Where    | Masa simpan / Retained    |
+| -------------------------------------------- | ----------------------- | ------------------ | ------------------------- |
+| Daftar peralatan, dengan kategori dan lokasi | PLP                     | `[[PNS: di mana]]` | Selamanya                 |
+| Rekaman peminjaman dan pengembalian          | PLP                     | `[[PNS: di mana]]` | `[A]` Satu tahun akademik |
+| Rekaman pemindahan dan penghapusan           | Kepala Laboratorium     | `[[PNS: di mana]]` | Selamanya                 |
+| Rekaman verifikasi tahunan                   | PLP                     | `[[PNS: di mana]]` | `[A]` Tiga tahun          |
 
 **Koreksi:**
 `_________________________________________________________________________________`
@@ -118,9 +113,9 @@ Tidak ada yang ditandatangani di dalam berkas ini.
 `[C]` Rantai yang selama ini berlaku di jurusan, tanpa perubahan.
 
 > **Rantai mana yang dicetak pada formulir belum ditetapkan, dan bukan penasihat yang menetapkannya.**
-> Dalam kumpulan dokumen terdapat dua. Prosedur peminjaman tahun 2020 menandatangani *Dibuat* ke
-> *Diperiksa* ke *Disetujui*. SOP pengoperasian tahun 2025 menandatangani *Verifikator*,
-> *Disahkan Oleh*, *Dibuat Oleh*. Templat mencetak bentuk tahun 2025, karena bentuk itulah yang lebih
+> Dalam kumpulan dokumen terdapat dua. Prosedur peminjaman tahun 2020 menandatangani _Dibuat_ ke
+> _Diperiksa_ ke _Disetujui_. SOP pengoperasian tahun 2025 menandatangani _Verifikator_,
+> _Disahkan Oleh_, _Dibuat Oleh_. Templat mencetak bentuk tahun 2025, karena bentuk itulah yang lebih
 > baru dan yang sudah digunakan oleh prosedur pengoperasian yang diperluas oleh kumpulan ini. Tercatat
 > sebagai pertanyaan terbuka nomor 1 dalam `document-pipeline/glossary.yaml`.
 >
